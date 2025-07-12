@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [employees, setEmployees] = useState([]);
+  const [settings, setSettings] = useState(null); // ✅ office_settings
 
   useEffect(() => {
      const fetchEmployees = async () => {
@@ -24,8 +25,23 @@ export default function Home() {
   }
 };
 
+ const fetchSettings = async () => {
+      try {
+        const res = await fetch("/api/office_settings");
+        const data = await res.json();
+        if (data.success && data.settings.length > 0) {
+          setSettings(data.settings[0]); // প্রথম সেটিংটি নিচ্ছি
+        }
+      } catch (err) {
+        console.error("Failed to fetch settings", err);
+      }
+    };
 
     fetchEmployees();
+    fetchSettings();
+
+
+    
   }, []);
 
   return (
@@ -44,19 +60,28 @@ export default function Home() {
               />
             </figure>
             <div className="card-body flex flex-col items-center text-center p-8 flex-grow">
-              <h2 className="card-title text-indigo-800 text-3xl font-extrabold mb-3">
+              <h2 className="card-title text-indigo-800 text-2xl font-extrabold mb-3">
                 {emp.name}
               </h2>
-              <p className="text-gray-700 text-lg font-medium leading-relaxed mb-6">
-                {emp.designation.replace(/_/g, ' ')} <br />
-                ১ নং রামগড় ইউনিয়ন পরিষদ <br />
-                রামগড়, খাগড়াছড়ি
-              </p>
-              <div className="mt-auto">
-                <div className="badge badge-outline text-indigo-700 border-indigo-500 text-lg px-5 py-3">
-                  মোবাইল: {emp.mobile || '---'}
-                </div>
-              </div>
+
+              <h2 className="card-title text-indigo-800 text-2xl font-extrabold mb-3">
+                 {emp.designation === "OFFICER_IN_CHARGE" ? "প্রশাসক" : ""}
+                 {emp.designation === "ADMINISTRATIVE_OFFICER" ? "ইউপি প্রশাসনিক কর্মকর্তা" : ""}
+                 {emp.designation === "ACCOUNTANT_COMPUTER_OPERATOR" ? "হিসাব সহকারী কাম কম্পিউটার অপারেটর" : ""}
+              </h2>
+
+              <h2 className="card-title text-indigo-800 text-xl font-extrabold mb-3">
+                 {settings?.union_name  }  
+              </h2>
+              
+              <h2 className="card-title text-indigo-800 text-xl font-extrabold mb-3">
+                 {settings?.upazila } ,  {settings?.district  } 
+              </h2>
+
+               
+
+               
+              
             </div>
           </div>
         ))}

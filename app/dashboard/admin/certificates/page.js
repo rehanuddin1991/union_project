@@ -42,6 +42,8 @@ const fetchEmployees = async () => {
     post_office: '',
     holding_no: '',
     notes: '',
+      letter_count: '',  
+
   })
 
   const printRef = useRef()
@@ -54,6 +56,11 @@ const fetchEmployees = async () => {
     else toast.error('Failed to load certificates')
   }
 
+   
+
+    
+   
+
   useEffect(() => {
     fetchCertificates()
     fetchEmployees()
@@ -61,6 +68,12 @@ const fetchEmployees = async () => {
         setNow(new Date().toLocaleDateString())
 
   }, [])
+
+
+   
+
+
+
  const signer = employees[0] || {
     name: ' ',
     designation: 'দায়িত্বপ্রাপ্ত কর্মকর্তা',
@@ -95,6 +108,24 @@ const fetchEmployees = async () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+     let letter_count = 1 // default
+
+const firstLetterCount = certificates[0]?.letter_count
+
+if (firstLetterCount === null || firstLetterCount === 0 || isNaN(firstLetterCount)) {
+  letter_count = parseInt(form.letter_count) || 1
+} else {
+  letter_count = firstLetterCount + 1
+}
+
+
+  const payload = {
+    ...form,
+    letter_count: parseInt(letter_count), // include it in payload
+  }
+
+
     const method = form.id ? 'PATCH' : 'POST'
     const url = form.id ? `/api/certificates?id=${form.id}` : '/api/certificates'
 
@@ -102,7 +133,8 @@ const fetchEmployees = async () => {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
+        
       })
       const data = await res.json()
       if (data.success) {
@@ -148,46 +180,7 @@ const fetchEmployees = async () => {
     })
   }
 
-  // Print function
-//   const handlePrint = (cert) => {
-//     const printContents = `
-//       <div style="padding: 30px; font-family: 'SolaimanLipi', sans-serif; line-height: 1.6;  ">
-//         <div style="text-align: center; margin-bottom: 20px;">
-  
-//   <h3 style="margin: 0;">${settings?.notes || ''}</h3>
    
-// </div>
-
-//         <h2 style="text-align: center; text-decoration: underline; margin-bottom: 20px;">
-//           ${cert.type}
-//         </h2>
-
-//         <h4 style="margin-top: 10px;">স্মারক নং:  <span style="margin-left: 370px;">তারিখ:</span></h4>
-//         <p><strong>আবেদনকারীর নাম:</strong> ${cert.applicantName}</p>
-//         <p><strong>পিতার নাম:</strong> ${cert.fatherName || '-'}</p>
-//         <p><strong>মাতার নাম:</strong> ${cert.motherName || '-'}</p>
-//         <p><strong>জন্ম তারিখ:</strong> ${cert.birthDate ? cert.birthDate.substring(0,10) : '-'}</p>
-//         <p><strong>ঠিকানা:</strong> ${cert.address || '-'}</p>
-//         <p>${cert.notes || '-'}</p>
-
-//         <div style="margin-top: 150px; text-align: right;">
-//          <div style="text-align: center; margin-left: 350px;">
-//             <p style="margin: 0;">${signer.name}</p>
-//            <p style="margin: 0;">${designationText}</p>
-
-//             <p style="margin: 0;">${signer.notes}</p>
-             
-//           </div>
-//         </div>
-//       </div>
-//     `
-//     const newWin = window.open('', '', 'width=600,height=700')
-//     newWin.document.write(printContents)
-//     newWin.document.close()
-//     newWin.focus()
-//     newWin.print()
-//     newWin.close()
-//   }
 const formatDate = (dateStr) => {
   const date = new Date(dateStr)
   return date.toLocaleDateString('bn-BD', {
@@ -342,6 +335,25 @@ const handlePrint = (cert) => {
             placeholder="nid " required
           />
         </div>
+
+         
+
+        {certificates.length === 0 && (
+  <div>
+    <label className="font-semibold">সনদের নাম্বার (শুধু প্রথমটির জন্য)</label>
+    <input
+      type="text"
+      value={form.letter_count}
+      onChange={(e) => setForm({ ...form, letter_count: e.target.value })}
+      className="border p-2 rounded w-full"
+      placeholder="letter_count "
+      required
+    />
+  </div>
+)}
+
+
+
 
          <div>
           <label className="font-semibold">ওয়ার্ড</label>

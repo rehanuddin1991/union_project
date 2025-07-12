@@ -116,6 +116,7 @@ ward         String?
 mouza        String?  
 post_office  String?
 holding_no   String?
+letter_count Int @default(0)
   issuedDate    DateTime @default(now())
   notes         String?  @db.Text
   is_deleted    Boolean  @default(false)   // ✅ added
@@ -138,6 +139,10 @@ model Employees {
 
 model OfficeSettings {
   id         Int      @id @default(autoincrement())
+  union_name String?
+  upazila String?
+  district String?
+  letter_count String?
   notes      String?  @db.Text
   sarok_no String? 
   is_deleted Boolean  @default(false)   // ✅ added

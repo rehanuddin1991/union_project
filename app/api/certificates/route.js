@@ -5,7 +5,7 @@ export async function GET() {
   try {
     // সনদগুলোর তালিকা নেবে, ক্রিয়েশন তারিখ অনুযায়ী সাজিয়ে
     const certificates = await prisma.certificate.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: { id: 'desc' },
     })
     return Response.json({ success: true, certificates })
   } catch (error) {

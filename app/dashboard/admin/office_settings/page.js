@@ -6,7 +6,15 @@ import 'react-toastify/dist/ReactToastify.css'
 
 export default function OfficeSettingsPage() {
   const [settings, setSettings] = useState([])
-  const [form, setForm] = useState({ id: null, sarok_no: '', notes: '' }) // ✅ updated
+  const [form, setForm] = useState({
+    id: null,
+    sarok_no: '',
+    notes: '',
+    union_name: '',
+    upazila: '',
+    district: '',
+     
+  })
 
   const fetchSettings = async () => {
     const res = await fetch('/api/office_settings')
@@ -34,7 +42,15 @@ export default function OfficeSettingsPage() {
       if (data.success) {
         toast.success('সফলভাবে সংরক্ষণ হয়েছে')
         fetchSettings()
-        setForm({ id: null, sarok_no: '', notes: '' }) // ✅ reset
+        setForm({
+          id: null,
+          sarok_no: '',
+          notes: '',
+          union_name: '',
+          upazila: '',
+          district: '',
+           
+        })
       } else toast.error('সেভ করতে সমস্যা হয়েছে')
     } catch {
       toast.error('এরর হয়েছে')
@@ -54,8 +70,12 @@ export default function OfficeSettingsPage() {
   const handleEdit = (s) => {
     setForm({
       id: s.id,
-      sarok_no: s.sarok_no || '', // ✅ add
-      notes: s.notes || ''
+      sarok_no: s.sarok_no || '',
+      notes: s.notes || '',
+      union_name: s.union_name || '',
+      upazila: s.upazila || '',
+      district: s.district || '',
+       
     })
   }
 
@@ -64,8 +84,7 @@ export default function OfficeSettingsPage() {
       <h2 className="text-2xl font-bold mb-6">অফিস সেটিংস</h2>
 
       <form onSubmit={handleSubmit} className="bg-white border p-6 rounded-xl shadow space-y-4 mb-8">
-        
-        {/* ✅ নতুন সারণী নম্বর ইনপুট */}
+        {/* স্মারক নং */}
         <div>
           <label className="font-semibold">স্মারক নং</label>
           <input
@@ -73,13 +92,52 @@ export default function OfficeSettingsPage() {
             value={form.sarok_no}
             onChange={(e) => setForm({ ...form, sarok_no: e.target.value })}
             className="border p-2 rounded w-full"
-            placeholder="স্মারক নম্বর লিখুন"
+            placeholder="৪৬.০০.৪৬৮০.০৭৬.২০২৫/"
+            required
           />
         </div>
 
-        {/* ✅ টেক্সট এডিটর */}
+        {/* ইউনিয়ন নাম */}
         <div>
-          <label className="font-semibold">নোটস</label>
+          <label className="font-semibold">ইউনিয়নের নাম</label>
+          <input
+            type="text"
+            value={form.union_name}
+            onChange={(e) => setForm({ ...form, union_name: e.target.value })}
+            className="border p-2 rounded w-full"
+            placeholder="১নং রামগড় ইউনিয়ন পরিষদ"  required
+          />
+        </div>
+
+        {/* উপজেলা */}
+        <div>
+          <label className="font-semibold">উপজেলা</label>
+          <input
+            type="text"
+            value={form.upazila}
+            onChange={(e) => setForm({ ...form, upazila: e.target.value })}
+            className="border p-2 rounded w-full"
+            placeholder="রামগড়"  required
+          />
+        </div>
+
+        {/* জেলা */}
+        <div>
+          <label className="font-semibold">জেলা</label>
+          <input
+            type="text"
+            value={form.district}
+            onChange={(e) => setForm({ ...form, district: e.target.value })}
+            className="border p-2 rounded w-full"
+            placeholder="খাগড়াছড়ি"  required
+          />
+        </div>
+
+         
+
+        {/* টেক্সট এডিটর */}
+        <div>
+          <label className="font-semibold">চিঠির উপরের ফুল হেডিং লিখুন</label>
           <Editor
             apiKey="fg6rfz4onq5dx0irorid2gyjdbh9xdpg01k2kdcqk7594hd2"
             value={form.notes}
@@ -101,7 +159,15 @@ export default function OfficeSettingsPage() {
         {form.id && (
           <button
             type="button"
-            onClick={() => setForm({ id: null, sarok_no: '', notes: '' })}
+            onClick={() => setForm({
+              id: null,
+              sarok_no: '',
+              notes: '',
+              union_name: '',
+              upazila: '',
+              district: '',
+              letter_count: ''
+            })}
             className="w-full mt-2 bg-gray-400 text-white py-2 rounded"
           >
             নতুন ফর্ম
@@ -115,6 +181,10 @@ export default function OfficeSettingsPage() {
           <thead className="bg-blue-100">
             <tr>
               <th className="border p-2">স্মারক নং</th>
+              <th className="border p-2">ইউনিয়ন</th>
+              <th className="border p-2">উপজেলা</th>
+              <th className="border p-2">জেলা</th>
+              <th className="border p-2">চিঠি সংখ্যা</th>
               <th className="border p-2">নোটস</th>
               <th className="border p-2">অ্যাকশন</th>
             </tr>
@@ -122,7 +192,7 @@ export default function OfficeSettingsPage() {
           <tbody>
             {settings.length === 0 && (
               <tr>
-                <td colSpan={3} className="text-center p-4">
+                <td colSpan={7} className="text-center p-4">
                   কোনো তথ্য পাওয়া যায়নি।
                 </td>
               </tr>
@@ -130,6 +200,10 @@ export default function OfficeSettingsPage() {
             {settings.map((s) => (
               <tr key={s.id}>
                 <td className="border p-2">{s.sarok_no || '-'}</td>
+                <td className="border p-2">{s.union_name || '-'}</td>
+                <td className="border p-2">{s.upazila || '-'}</td>
+                <td className="border p-2">{s.district || '-'}</td>
+                <td className="border p-2">{s.letter_count || '-'}</td>
                 <td className="border p-2">
                   <div dangerouslySetInnerHTML={{ __html: s.notes || '-' }} />
                 </td>
