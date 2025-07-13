@@ -189,192 +189,77 @@ const formatDate = (dateStr) => {
     year: 'numeric',
   })
 }
-const handlePrint = async (cert) => {
-  const origin = window.location.origin;
-  
-  // ইমেজ URL গুলো সম্পূর্ণ করুন
-  const govtImg = `${origin}/images/govt.png`;
-  const qrImg = `${origin}/images/qr.png`;
+const handlePrint = (cert) => {
+    
+      const origin = window.location.origin;
 
-  // ইমেজ প্রি-লোড ফাংশন
-  const preloadImage = (url) => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.src = url;
-      img.onload = resolve;
-      img.onerror = resolve; // ইরর হলেও প্রক্রিয়া চালিয়ে যাবে
-    });
-  };
 
-  // সব ইমেজ প্রি-লোড করুন
-  await Promise.all([preloadImage(govtImg), preloadImage(qrImg)]);
-
-  // প্রিন্ট কন্টেন্ট HTML
   const printContents = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>${cert.type || 'Certificate'}</title>
-      <style>
-        @page {
-          size: A4;
-          margin: 0;
-        }
-        body {
-          font-family: 'SolaimanLipi', Arial, sans-serif;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-          margin: 0;
-          padding: 0;
-        }
-        .certificate-container {
-          padding: 60px;
-          position: relative;
-          min-height: 100vh;
-          box-sizing: border-box;
-        }
-        .watermark {
-          background-image: url('${govtImg}');
-          background-repeat: no-repeat;
-          background-position: center;
-          background-size: 350px;
-          opacity: 0.1;
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          z-index: -1;
-        }
-        .header-logo {
-          position: absolute;
-          top: 60px;
-          left: 60px;
-          width: 80px;
-          height: auto;
-        }
-        .qr-code {
-          position: absolute;
-          bottom: 40px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 80px;
-          height: auto;
-        }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 20px 0;
-        }
-        table tr td {
-          padding: 5px 0;
-        }
-        .signature-area {
-          margin-top: 80px;
-          text-align: right;
-        }
-        .signature-box {
-          display: inline-block;
-          text-align: center;
-          margin-left: 200px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="certificate-container">
-        <div class="watermark"></div>
-        
-        <img src="${govtImg}" class="header-logo" alt="Government Logo">
-        
-        <div style="text-align: center; ">
-          <h3 style="margin: 0;">${settings?.notes || ''}</h3>
-          <hr style="margin-top: 20px; border: 1px solid #000;">
-        </div>
-
-        <div style="margin-top: 20px;">
-          <p>স্মারক নং: ${settings?.sarok_no }${settings?.letter_count }</p>
-          <p style="text-align: right;margin-top:-40px;">তারিখ: ${formatDate(cert.issuedDate || new Date())}</p>
-        </div>
-
-        <h2 style="text-align: center; text-decoration: underline;">${cert.type || 'সার্টিফিকেট'}</h2>
-
-        <p style="margin-top: 30px;">প্রত্যয়ন করা যাচ্ছে যে,</p>
-        
-        <table>
-          <tr>
-            <td style="width: 30%;">নাম</td>
-            <td>: <span style="margin-left:7px;">${cert.applicantName}</span></td>
-          </tr>
-          <tr>
-            <td>পিতার নাম</td>
-            <td>: <span style="margin-left:7px;">${cert.fatherName || '-'}</span></td>
-          </tr>
-          <tr>
-            <td>মাতার নাম</td>
-            <td>: <span style="margin-left:7px;">${cert.motherName || '-'}</span></td>
-          </tr>
-          <tr>
-            <td>জন্ম তারিখ</td>
-            <td>: <span style="margin-left:7px;">${cert.birthDate?.substring(0, 10) || '-'}</span></td>
-          </tr>
-          <tr>
-            <td>স্থায়ী ঠিকানা</td>
-            <td>: <span style="margin-left:7px;">${cert.address || '-'}</span></td>
-          </tr>
-          <tr>
-            <td>জাতীয় পরিচয়পত্র নম্বর</td>
-            <td>: <span style="margin-left:7px;">${cert.nid || '-'}</span></td>
-          </tr>
-          <tr>
-            <td>ওয়ার্ড</td>
-            <td>: <span style="margin-left:7px;">${cert.ward || '-'}</span></td>
-            <td>হোল্ডিং নং:</td>
-            <td>: <span style="margin-left:7px;">${cert.holding_no || '-'}</span></td>
-          </tr>
-          <tr>
-            <td>মৌজা</td>
-            <td>: <span style="margin-left:7px;">${cert.mouza || '-'}</span></td>
-            <td>ডাকঘর</td>
-            <td>: <span style="margin-left:7px;">${cert.post_office || '-'}</span></td>
-          </tr>
-        </table>
-
-        <p style="margin-top: 30px;">
-          তিনি উপরোক্ত ঠিকানার একজন স্থায়ী বাসিন্দা এবং ব্যক্তিগতভাবে আমার পরিচিত। 
-          আমার জানামতে তিনি জন্মসূত্রে বাংলাদেশী নাগরিক। তিনি রাষ্ট্র বা সমাজবিরোধী 
-          কোনো কার্যকলাপের সঙ্গে জড়িত নন।
-        </p>
-
-        <p style="margin-top: 10px;">আমি তার সর্বাঙ্গীন সফলতা ও মঙ্গল কামনা করছি।</p>
-
-        <div class="signature-area">
-          <div class="signature-box">
-            <p style="margin: 0; border-top: 1px solid #000; width: 200px; padding-top: 5px;">${signer.name}</p>
-            <p style="margin: 0;">${designationText}</p>
-            <p style="margin: 0;">${signer.office1}</p>
-            <p style="margin: 0;">${signer.office4}</p>
-          </div>
-        </div>
-
-        <img src="${qrImg}" class="qr-code" alt="QR Code">
+    <div style="
+      padding: 60px;
+      font-family: 'SolaimanLipi', sans-serif;
+      position: relative;
+      background-image: url('/images/govt.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 350px;
+      opacity: 1;
+    ">
+      <div style="text-align: center;">
+        <img src="https://e7.pngegg.com/pngimages/301/304/png-clipart-government-of-bangladesh-prime-minister-of-bangladesh-dhaka-people-s-republic-assembly-of-the-republic-government-of-bangladesh-prime-minister-of-bangladesh.png" alt="logo" style="position: absolute; top: 60px; left: 60px; width: 60px;">
+        <h3 style="margin: 0;">${settings?.notes || ''}</h3>
+        <hr style="margin-top: 20px;">
       </div>
-    </body>
-    </html>
-  `;
 
-  const newWin = window.open('', '_blank', 'width=800,height=1000');
-  newWin.document.write(printContents);
-  newWin.document.close();
+      <div style="margin-top: 20px;">
+        <p>স্মারক নং: ${settings?.sarok_no || ''}</p>
+       <p style="text-align: right;">তারিখ: ${formatDate(cert.issuedDate || new Date())}</p>
 
-  // ইমেজ লোড নিশ্চিত হওয়ার পর প্রিন্ট করুন
-  newWin.onload = () => {
-    setTimeout(() => {
-      newWin.print();
-      // নিচের লাইনটি আনকমেন্ট করুন যদি প্রিন্ট ডায়ালগ বন্ধ হওয়ার পর উইন্ডোটি বন্ধ করতে চান
-      // newWin.close();
-    }, 500);
-  };
-};
+      </div>
+
+      <h2 style="text-align: center; text-decoration: underline;">"${cert.type}"</h2>
+
+      <p style="margin-top: 30px;">প্রত্যয়ন করা যাচ্ছে যে,</p>
+      <table style="line-height: 2; font-size: 16px;">
+        <tr><td>নাম</td><td>: <span style="margin-left:7px;">  ${cert.applicantName}</span></td></tr>
+        <tr><td>পিতার নাম</td><td>:<span style="margin-left:7px;"> ${cert.fatherName || '-'}</span></td></tr>
+        <tr><td>মাতার নাম</td><td>:<span style="margin-left:7px;"> ${cert.motherName || '-'}</span></td></tr>
+        <tr><td>জন্ম তারিখ</td><td>:<span style="margin-left:7px;"> ${cert.birthDate?.substring(0, 10) || '-'}</span></td></tr>
+        <tr><td>স্থায়ী ঠিকানা</td><td>:<span style="margin-left:7px;"> ${cert.address || '-'}</span></td></tr>
+        <tr><td>জাতীয় পরিচয়পত্র নম্বর</td><td>:<span style="margin-left:7px;"> ${cert.nid || '-'}</span></td></tr>
+        <tr><td>ওয়ার্ড</td><td>:<span style="margin-left:7px;"> ${cert.ward || '-'}</span></td> 
+         <td>হোল্ডিং নং:</td><td>:<span style="margin-left:7px;"> ${cert.holding_no || '-'}</span></td></tr>
+        <tr><td>মৌজা</td><td>:<span style="margin-left:7px;"> ${cert.mouza || '-'}</span></td> 
+        <td>ডাকঘর</td><td>:<span style="margin-left:7px;"> ${cert.post_office || '-'}</span></td></tr>
+      </table>
+
+      <p style="margin-top: 30px;">তিনি উপরোক্ত ঠিকানার একজন স্থায়ী বাসিন্দা এবং ব্যক্তিগতভাবে আমার পরিচিত। আমার জানামতে তিনি জন্মসূত্রে বাংলাদেশী নাগরিক। তিনি রাষ্ট্র বা সমাজবিরোধী কোনো কার্যকলাপের সঙ্গে জড়িত নন।</p>
+
+      <p style="margin-top: 10px;">আমি তার সর্বাঙ্গীন সফলতা ও মঙ্গল কামনা করছি।</p>
+
+      <div style="margin-top: 100px; text-align: right;">
+        <div style="text-align: center; margin-left: 350px;">
+          <p style="margin: 0;">${signer.name}</p>
+          <p style="margin: 0;">${designationText}</p>
+          <p style="margin: 0;">${signer.office1}</p>
+          <p style="margin: 0;">${signer.office4}</p>
+        </div>
+      </div>
+
+      <div style="position: absolute; bottom: 40px; left: 50%;">
+        <img src="/qr.png" alt="QR Code" style="width: 80px; transform: translateX(-50%);">
+      </div>
+    </div>
+  `
+
+  const newWin = window.open('', '', 'width=800,height=1000')
+  newWin.document.write(printContents)
+  newWin.document.close()
+  newWin.focus()
+  newWin.print()
+  newWin.close()
+}
+
 
   return (
     <div className="max-w-5xl mx-auto p-6">
