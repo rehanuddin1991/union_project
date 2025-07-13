@@ -20,6 +20,15 @@ const fetchOfficeSettings = async () => {
   else toast.error('অফিস সেটিংস লোড করতে ব্যর্থ হয়েছে')
 }
 
+const handleLoadDefaultNote = () => {
+  const defaultNote = `
+    <p>তিনি উপরোক্ত ঠিকানার একজন স্থায়ী বাসিন্দা এবং ব্যক্তিগতভাবে আমার পরিচিত।আমার জানামতে তিনি জন্মসূত্রে বাংলাদেশী নাগরিক।তিনি রাষ্ট্র বা সমাজ বিরোধী কোনো কার্যকলাপের সঙ্গে জড়িত নন।
+      আমি তাহার সর্বাঙ্গীন মঙ্গল ও উন্নতি কামনা করছি।</p>
+     
+  `
+  setForm({ ...form, notes: defaultNote })
+}
+
 const fetchEmployees = async () => {
     const res = await fetch('/api/employees')
     const data = await res.json()
@@ -94,9 +103,8 @@ const signer2=employees[1]||   {
   ? 'দায়িত্বপ্রাপ্ত কর্মকর্তা'
   : 'চেয়ারম্যান'
 
-  const designationText2 = signer.designation === "ADMINISTRATIVE_OFFICER"
-  ? 'ইউপি প্রশাসনিক কর্মকর্তা'
-  : 'ইউপি প্রশাসনিক কর্মকর্তা'
+const designationText2 = 'ইউপি প্রশাসনিক কর্মকর্তা'
+
   const resetForm = () => {
     setForm({
       id: null,
@@ -207,6 +215,11 @@ const handlePrint = async (cert) => {
   const govtImg = `${origin}/images/govt.png`;
   const unionImg = `${origin}/images/union2.png`;
   const qrImg = `${origin}/images/qr.png`;
+  const qrUrl = `${origin}/verify/certificate?id=${cert.id}`;
+ const qrImg_with_link = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrUrl)}&size=100x100`;
+  //const qrImg_with_link = `https://api.qrserver.com/v1/create-qr-code/?data=https://google.com&size=150x150`;
+
+
 
   const preloadImage = (url) => {
     return new Promise((resolve) => {
@@ -245,7 +258,7 @@ const handlePrint = async (cert) => {
           print-color-adjust: exact;
           margin: 0;
           padding: 0;
-          line-height: 1.2;
+          line-height: 1;
           background: #f9f9f9;
         }
 
@@ -287,7 +300,7 @@ const handlePrint = async (cert) => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 20px;
+          margin-bottom: 10px;
           padding: 0 20px;
           position: relative;
           z-index: 1;
@@ -301,7 +314,7 @@ const handlePrint = async (cert) => {
         }
 
         .header-title {
-          font-size: 16px;
+          font-size: 13px;
           font-weight: bold;
           text-align: center;
           flex: 1;
@@ -309,8 +322,8 @@ const handlePrint = async (cert) => {
 
         hr {
           border: 1px solid #000;
-          margin-top: 5px;
-          margin-bottom: 10px;
+          margin-top: 7px;
+          margin-bottom: 5px;
         }
 
         .top-section {
@@ -318,10 +331,12 @@ const handlePrint = async (cert) => {
           justify-content: space-between;
           align-items: center;
           z-index: 1;
+        
         }
 
         .top-section p {
           margin: 0;
+            margin-top:5px;
         }
 
         h2 {
@@ -355,7 +370,7 @@ const handlePrint = async (cert) => {
 
         .signature-box {
           text-align: center;
-          line-height: 1.1;
+          line-height: 1;
         }
 
         .qr-code {
@@ -376,14 +391,14 @@ const handlePrint = async (cert) => {
               <img src="${unionImg}" class="header-logo" alt="Union Logo" />
             </div>
 
-            <hr />
+            
 
             <div class="top-section">
               <p>স্মারক নং: ${settings?.sarok_no}${settings?.letter_count}</p>
               <p>তারিখ: ${formatDate(cert.issuedDate || new Date())}</p>
             </div>
 
-            <h2>"${cert.type || 'সার্টিফিকেট'}"</h2>
+            <h2 style="margin-top:15px;">"${cert.type || 'সার্টিফিকেট'}"</h2>
 
             <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;প্রত্যয়ন করা যাচ্ছে যে,</p>
 
@@ -409,7 +424,7 @@ const handlePrint = async (cert) => {
     <td>: ${cert.address || '-'}</td>
   </tr>
   <tr>
-    <td>জাতীয় পরিচয়পত্র নম্বর</td>
+    <td>জাতীয় পরিচয়পত্র/জন্ম নিবন্ধন নম্বর</td>
     <td>: ${cert.nid || '-'}</td>
   </tr>
   <tr>
@@ -429,13 +444,14 @@ const handlePrint = async (cert) => {
     <td>ডাকঘর</td>
     <td>: ${cert.post_office || '-'}</td>
   </tr>
+   
 </table>
+<div style="text-align:justify; line-height:1.6">
+  ${cert.notes || '-'}
+</div>
 
 
-            <p>তিনি উপরোক্ত ঠিকানার একজন স্থায়ী বাসিন্দা এবং ব্যক্তিগতভাবে আমার পরিচিত। 
-            আমার জানামতে তিনি জন্মসূত্রে বাংলাদেশী নাগরিক। তিনি রাষ্ট্র বা সমাজ বিরোধী কোনো কার্যকলাপের সঙ্গে জড়িত নন।</p>
-
-            <p style="margin-left:90px;">আমি তাহার সর্বাঙ্গীন মঙ্গল ও উন্নতি কামনা করছি।</p>
+          
 
             <div class="signature-area">
               <div class="signature-box">
@@ -445,7 +461,7 @@ const handlePrint = async (cert) => {
                 <p>${settings?.upazila}, ${settings?.district}</p>
               </div>
 
-              <img src="${qrImg}" class="qr-code" alt="QR Code" />
+              <img src="${qrImg_with_link}" class="qr-code" alt="QR Code" />
 
               <div class="signature-box">
                 <p style="margin: 0; width: 200px; padding-top: 5px;">${signer.name}</p>
@@ -487,7 +503,7 @@ const handlePrint = async (cert) => {
             className="border p-2 rounded w-full"
           >
             <option value="">-- সনদের ধরন নির্বাচন করুন --</option>
-            <option value="নাগরিক সনদ">নাগরিক সনদ</option>
+            <option value="নাগরিকত্ব সনদ">নাগরিকত্ব সনদ</option>
             <option value="জাতীয়তা সনদ">জাতীয়তা সনদ</option>
             <option value="ওয়ারিশ সনদ">ওয়ারিশ সনদ</option>
             <option value="বার্ষিক আয়ের সনদ">বার্ষিক আয়ের সনদ</option>
@@ -540,7 +556,7 @@ const handlePrint = async (cert) => {
         </div>
 
          <div>
-          <label className="font-semibold">জাতীয় পরিচয়পত্রের নম্বর</label>
+          <label className="font-semibold">জাতীয় পরিচয়পত্র/জন্ম নিবন্ধন নম্বর</label>
           <input
             type="text"
             value={form.nid}
@@ -638,6 +654,13 @@ const handlePrint = async (cert) => {
 
         <div>
           <label className="font-semibold">নোটস</label>
+          <button
+    type="button"
+    onClick={handleLoadDefaultNote}
+    className="bg-green-500 text-white mx-4 my-4 px-3 py-1  text-sm rounded-2xl shadow  hover:bg-green-600"
+  >
+    Load Default
+  </button>
          <Editor
   apiKey="fg6rfz4onq5dx0irorid2gyjdbh9xdpg01k2kdcqk7594hd2"
   value={form.notes}

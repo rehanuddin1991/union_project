@@ -1,17 +1,36 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
-export async function GET() {
+import { NextResponse } from 'next/server'
+//import { prisma } from '@/lib/prisma'
+
+export async function GET(req) {
   try {
-    // সনদগুলোর তালিকা নেবে, ক্রিয়েশন তারিখ অনুযায়ী সাজিয়ে
+    const { searchParams } = new URL(req.url)
+    const id = searchParams.get('id')
+
+    if (id) {
+      const certificate = await prisma.certificate.findUnique({
+        where: { id: parseInt(id) },
+      })
+
+      if (!certificate) {
+        return NextResponse.json({ success: false, message: 'সনদ পাওয়া যায়নি' }, { status: 404 })
+      }
+
+      return NextResponse.json({ success: true, certificates: [certificate] })
+    }
+
+    // যদি id না থাকে, সব সনদ ফেরত দাও
     const certificates = await prisma.certificate.findMany({
       orderBy: { id: 'desc' },
     })
-    return Response.json({ success: true, certificates })
+    return NextResponse.json({ success: true, certificates })
   } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 })
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
   }
 }
+
 
 export async function POST(req) {
   try {
