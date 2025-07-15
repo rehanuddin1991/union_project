@@ -109,6 +109,8 @@ model Certificate {
   applicantName String
   fatherName    String?
   motherName    String?
+  spouse    String?
+  birth_no    String?
   birthDate     DateTime?
   address       String?
  nid          String?  
