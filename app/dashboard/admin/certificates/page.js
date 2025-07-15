@@ -12,9 +12,166 @@ const Editor = dynamic(
 
 export default function CertificatesPage() {
   const [certificates, setCertificates] = useState([]);
+  //console.log("hhhhhh"+certificates);
   const [employees, setEmployees] = useState([]);
   const [settings, setSettings] = useState(null);
   const [now, setNow] = useState(null);
+
+  function convertEnglishYearToBangla(year) {
+   
+
+  const engToBanglaDigits = {
+    "0": "০",
+    "1": "১",
+    "2": "২",
+    "3": "৩",
+    "4": "৪",
+    "5": "৫",
+    "6": "৬",
+    "7": "৭",
+    "8": "৮",
+    "9": "৯",
+  };
+
+  return String(year)
+    .split("")
+    .map(digit => engToBanglaDigits[digit])
+    .join("");
+}
+
+  function numberToBanglaWords(num) {
+  if (typeof num !== "number" || isNaN(num)) return "";
+
+  const banglaNumbers = {
+    0: "শূন্য",
+    1: "এক",
+    2: "দুই",
+    3: "তিন",
+    4: "চার",
+    5: "পাঁচ",
+    6: "ছয়",
+    7: "সাত",
+    8: "আট",
+    9: "নয়",
+    10: "দশ",
+    11: "এগারো",
+    12: "বারো",
+    13: "তেরো",
+    14: "চৌদ্দ",
+    15: "পনেরো",
+    16: "ষোল",
+    17: "সতেরো",
+    18: "আঠারো",
+    19: "ঊনিশ",
+    20: "বিশ",
+    21: "একুশ",
+    22: "বাইশ",
+    23: "তেইশ",
+    24: "চব্বিশ",
+    25: "পঁচিশ",
+    26: "ছাব্বিশ",
+    27: "সাতাশ",
+    28: "আটাশ",
+    29: "ঊনত্রিশ",
+    30: "ত্রিশ",
+    31: "একত্রিশ",
+    32: "বত্রিশ",
+    33: "তেত্রিশ",
+    34: "চৌত্রিশ",
+    35: "পঁইত্রিশ",
+    36: "ছত্রিশ",
+    37: "সাইত্রিশ",
+    38: "আটত্রিশ",
+    39: "ঊনচল্লিশ",
+    40: "চল্লিশ",
+    41: "একচল্লিশ",
+    42: "বিয়াল্লিশ",
+    43: "তেতাল্লিশ",
+    44: "চুয়াল্লিশ",
+    45: "পঁইতাল্লিশ",
+    46: "ছেচল্লিশ",
+    47: "সাতচল্লিশ",
+    48: "আটচল্লিশ",
+    49: "ঊনপঞ্চাশ",
+    50: "পঞ্চাশ",
+    51: "একান্ন",
+    52: "বাহান্ন",
+    53: "তিপ্পান্ন",
+    54: "চুয়ান্ন",
+    55: "পঞ্চান্ন",
+    56: "ছাপ্পান্ন",
+    57: "সাতান্ন",
+    58: "আটান্ন",
+    59: "ঊনষাট",
+    60: "ষাট",
+    61: "একষট্টি",
+    62: "বাষট্টি",
+    63: "তেষট্টি",
+    64: "চৌষট্টি",
+    65: "পঁইষট্টি",
+    66: "ছেষট্টি",
+    67: "সাতষট্টি",
+    68: "আটষট্টি",
+    69: "ঊনসত্তর",
+    70: "সত্তর",
+    71: "একাত্তর",
+    72: "বাহাত্তর",
+    73: "তিয়াত্তর",
+    74: "চুয়াত্তর",
+    75: "পঁইচাত্তর",
+    76: "ছিয়াত্তর",
+    77: "সাতাত্তর",
+    78: "আটাত্তর",
+    79: "ঊনআশি",
+    80: "আশি",
+    81: "একাশি",
+    82: "বিরাশি",
+    83: "তিরাশি",
+    84: "চুরাশি",
+    85: "পঁইচাশি",
+    86: "ছিয়াশি",
+    87: "সাতাশি",
+    88: "আটাশি",
+    89: "ঊননব্বই",
+    90: "নব্বই",
+    91: "একানব্বই",
+    92: "বিরানব্বই",
+    93: "তিরানব্বই",
+    94: "চুরানব্বই",
+    95: "পঁইচানব্বই",
+    96: "ছিয়ানব্বই",
+    97: "সাতানব্বই",
+    98: "আটানব্বই",
+    99: "নিরানব্বই",
+  };
+
+  if (banglaNumbers[num]) return banglaNumbers[num];
+
+  // ✅ 100 এর উপরের জন্য
+  if (num < 1000) {
+    let hundred = Math.floor(num / 100);
+    let rest = num % 100;
+    return (
+      (hundred ? (banglaNumbers[hundred] || numberToBanglaWords(hundred)) + " শত" : "") +
+      (rest ? " " + numberToBanglaWords(rest) : "")
+    ).trim();
+  }
+
+  if (num < 100000) {
+    let thousand = Math.floor(num / 1000);
+    let rest = num % 1000;
+    return (
+      (thousand ? numberToBanglaWords(thousand) + " হাজার" : "") +
+      (rest ? " " + numberToBanglaWords(rest) : "")
+    ).trim();
+  }
+
+  return "সংখ্যা সীমার বাইরে";
+}
+
+ 
+
+
 
   const fetchOfficeSettings = async () => {
     const res = await fetch("/api/office_settings");
@@ -61,6 +218,19 @@ export default function CertificatesPage() {
     letter_count: "",
     trade_name: "",
     trade_address: "",
+
+     
+
+       trade_fee: "",
+  trade_capital_tax: "",
+  trade_due: "",
+  trade_vat: "",
+  trade_total_tax: "",
+  trade_type: "",
+  fiscalYear: "Y2025_2026", // default
+  fiscalYearEnd: "Y2025_2026", // default
+
+
   });
 
   const printRef = useRef();
@@ -133,6 +303,7 @@ export default function CertificatesPage() {
   trade_total_tax: "",
   trade_type: "",
   fiscalYear: "Y2025_2026", // default
+  fiscalYearEnd: "Y2025_2026", // default
 
     });
   };
@@ -196,6 +367,7 @@ export default function CertificatesPage() {
   };
 
   const handleEdit = (cert) => {
+    //console.log("reee"+cert.trade_name)
     setForm({
       id: cert.id,
       type: cert.type,
@@ -214,6 +386,7 @@ export default function CertificatesPage() {
       holding_no: cert.holding_no || "",
       notes: cert.notes || "",
       trade_name: cert.trade_name || "",
+      
       trade_address: cert.trade_address || "",
 
        trade_fee: cert.trade_fee || "",
@@ -223,20 +396,12 @@ export default function CertificatesPage() {
     trade_total_tax: cert.trade_total_tax || "",
     trade_type: cert.trade_type || "",
     fiscalYear: cert.fiscalYear || "Y2025_2026",
+    fiscalYearEnd: cert.fiscalYear || "Y2025_2026",
     
     });
   };
 
-  // const formatDate = (date) => {
-  //   const d = new Date(date);
-  //   return d
-  //     .toLocaleDateString("bn-BD", {
-  //       day: "numeric",
-  //       month: "long",
-  //       year: "numeric",
-  //     })
-  //     .replace(/,/, ""); // এখানে কমা সরানো হয়েছে
-  // };
+  
 
   const formatDobDate = (date) => {
     const data = date?.substring(0, 10).split("-");
@@ -561,8 +726,13 @@ export default function CertificatesPage() {
 
 
 
-  const handlePrint_trade = async (cert) => {
+  const handlePrintTradeLicense = async (cert) => {
+    
     const origin = window.location.origin;
+    const tax = Number(cert.trade_total_tax) || 0;
+    //alert(tax)
+      const banglaText = numberToBanglaWords(tax) + " টাকা মাত্র";
+
 
     const govtImg = `${origin}/images/govt.png`;
     const unionImg = `${origin}/images/union2.png`;
@@ -805,6 +975,12 @@ export default function CertificatesPage() {
     <td>গ্রাম</td>
     <td>: ${cert.address || "-"}</td>
   </tr>
+
+   <tr>
+    <td>ডাকঘর</td>
+    <td>: ${cert.post_office || "-"}</td>
+  </tr>
+
   <tr>
     <td>জাতীয় পরিচয়পত্র নম্বর</td>
     <td>: ${cert.nid || ""}</td>
@@ -814,70 +990,79 @@ export default function CertificatesPage() {
     <td>জন্ম নিবন্ধন নম্বর</td>
     <td>: ${cert.birth_no || ""}</td>
   </tr>
-  <tr>
-    <td>ওয়ার্ড</td>
-    <td>: ${cert.ward || "-"}</td>
-    </tr>
-    <tr>
-    <td>হোল্ডিং নং</td>
-    <td>: ${cert.holding_no || "-"}</td>
-  </tr>
+  
    
     
    
-  <tr>
-    <td>মৌজা</td>
-    <td>: ${cert.mouza || "-"}</td>
-  </tr>
+   
   
 
-  <tr>
-    <td>ডাকঘর</td>
-    <td>: ${cert.post_office || "-"}</td>
-  </tr>
-
-  <hr>
-
-   <tr>
-    <td>ট্রেড লাইসেন্স ফি</td>
-    <td>: ${cert.trade_fee || "-"}</td>
-  </tr>
-
-   <tr>
-    <td>মুলধন কর</td>
-    <td>: ${cert.trade_capital_tax || "-"}</td>
-  </tr>
-
-
-   <tr>
-    <td>বকেয়া</td>
-    <td>: ${cert.trade_due || "-"}</td>
-  </tr>
-
-   <tr>
-    <td>ভ্যাট</td>
-    <td>: ${cert.trade_vat || "-"}</td>
-  </tr>
-
-   <tr>
-    <td>সর্বমোট কর</td>
-    <td>: ${cert.trade_total_tax|| "-"}</td>
-  </tr>
-
-    
+ 
 
 
 
    
 </table>
 
-<div>
-উল্লেখিত পেশা ও ব্যবসা বাণিজ্য পরিচালনার নিমিত্তে চলতি আর্থিক বছর ${cert.fiscalYear} সনের লাইসেন্স প্রদান করা হলো। অত্র লাইসেন্স ${cert.fiscalYear} ইং সনের ৩০শে জুন পর্যন্ত কার্যকর থাকবে।
+<table style=" margin-left:100px; border-collapse: collapse;">
+
+  
+
+   <tr>
+    <td>ক) ট্রেড লাইসেন্স ফি</td>
+    <td>:    <input style=" text-align:center;  width:  150px;padding:6px 8px;
+     border: 1px solid #ccc;border-radius:6px;
+     
+  }} type="text" value=${cert.trade_fee || ""}> </td>
+  </tr>
+
+   <tr>
+    <td>খ) মুলধন কর</td>
+    <td>: <input style=" text-align:center;  width:  150px;padding:6px 8px;
+     border: 1px solid #ccc;border-radius:6px;
+     
+  }} type="text" value=${cert.trade_capital_tax || ""}>  </td>
+  </tr>
+
+
+   <tr>
+    <td>গ) বকেয়া</td>
+    <td>:  <input style=" text-align:center;  width:  150px;padding:6px 8px;
+     border: 1px solid #ccc;border-radius:6px;
+     
+  }} type="text" value=${cert.trade_due || ""}>  </td>
+  </tr>
+
+   <tr>
+    <td>ঘ) ভ্যাট</td>
+    <td>:  <input style=" text-align:center;  width:  150px;padding:6px 8px;
+     border: 1px solid #ccc;border-radius:6px;
+     
+  }} type="text" value=${cert.trade_vat || ""}>  </td>
+  </tr>
+
+   <tr>
+  <td>সর্বমোট কর</td>
+  <td>
+    : <span 
+        style="display:inline-block; text-align:center; width:320px; padding:6px 8px;
+               border:1px solid #ccc; border-radius:6px;">${cert.trade_total_tax || ""} (
+        ${banglaText || ""} )
+      </span>
+  </td>
+</tr>
+
+
+    </table>
+
+<div style="text-align:justify;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;উল্লেখিত পেশা ও ব্যবসা বাণিজ্য পরিচালনার জন্য লাইসেন্স প্রদান করা হলো।
+ উক্ত লাইসেন্স ${ convertEnglishYearToBangla(cert.fiscalYearEnd?.split("_")[1]) || ""
+ 
+} সালের ৩০শে জুন পর্যন্ত কার্যকর থাকবে।
 
 </div>
-<div style="text-align:justify; line-height:1.6">
-  ${cert.notes || "-"}
-</div>
+ 
 
 
           
@@ -963,7 +1148,7 @@ export default function CertificatesPage() {
                 setForm({ ...form, applicantName: e.target.value })
               }
               className="border p-2 rounded w-full"
-              placeholder="আবেদনকারীর নাম"
+               
             />
           </div>
 
@@ -974,7 +1159,7 @@ export default function CertificatesPage() {
               value={form.fatherName}
               onChange={(e) => setForm({ ...form, fatherName: e.target.value })}
               className="border p-2 rounded w-full"
-              placeholder="পিতার নাম"
+               
               required
             />
           </div>
@@ -986,21 +1171,21 @@ export default function CertificatesPage() {
               value={form.motherName}
               onChange={(e) => setForm({ ...form, motherName: e.target.value })}
               className="border p-2 rounded w-full"
-              placeholder="মাতার নাম"
+               
               required
             />
           </div>
 
           <div>
             <label className="font-semibold text-indigo-700">
-              স্বামী/স্ত্রীর নাম
+              স্বামী/স্ত্রীর নাম (প্রযোজ্য ক্ষেত্রে)
             </label>
             <input
               type="text"
               value={form.spouse}
               onChange={(e) => setForm({ ...form, spouse: e.target.value })}
               className="border p-2 rounded w-full"
-              placeholder="স্বামী/স্ত্রীর নাম"
+              placeholder="যদি প্রয়োজন হয় শুধু তখন"
             />
           </div>
 
@@ -1029,7 +1214,7 @@ export default function CertificatesPage() {
 
           <div>
             <label className="font-semibold text-indigo-700">
-              জন্ম নিবন্ধন নম্বর
+              জন্ম নিবন্ধন নম্বর ( যদি nid না থাকে)
             </label>
             <input
               type="text"
@@ -1053,7 +1238,7 @@ export default function CertificatesPage() {
                     setForm({ ...form, trade_name: e.target.value })
                   }
                   className="border p-2 rounded w-full"
-                  placeholder="ট্রেডের নাম"
+                  placeholder="ফালগুন ট্রেডাস"
                   required
                 />
               </div>
@@ -1078,7 +1263,7 @@ export default function CertificatesPage() {
                 <label className="font-semibold text-indigo-700">
                   ট্রেডের ধরন
                 </label>
-                <input
+                <input  
                   type="text"
                   value={form.trade_type}
                   onChange={(e) =>
@@ -1162,7 +1347,7 @@ export default function CertificatesPage() {
               </div>
 
               <div>
-                <label className="font-semibold text-indigo-700">অর্থবছর</label>
+                <label className="font-semibold text-indigo-700">অর্থবছর(থেকে/শুরু)</label>
                 <select
                   value={form.fiscalYear}
                   onChange={(e) =>
@@ -1173,6 +1358,35 @@ export default function CertificatesPage() {
                   <option value="Y2024_2025">২০২৪-২৫</option>
                   <option value="Y2025_2026">২০২৫-২৬</option>
                   <option value="Y2026_2027">২০২৬-২৭</option>
+                  <option value="Y2027_2028">২০২৭-২৮</option>
+                  <option value="Y2028_2029">২০২৮-২৯</option>
+                  <option value="Y2029_2030">২০২৯-৩০</option>
+                  <option value="Y2030_2031">২০৩০-৩১</option>
+                  <option value="Y2031_2032">২০৩১-৩২</option>
+                  <option value="Y2032_2033">২০৩২-৩৩</option>
+                  <option value="Y2033_2034">২০৩৩-৩৪</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="font-semibold text-indigo-700">অর্থবছর(পর্যন্ত/শেষ)</label>
+                <select
+                  value={form.fiscalYearEnd}
+                  onChange={(e) =>
+                    setForm({ ...form, fiscalYearEnd: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                >
+                  <option value="Y2024_2025">২০২৪-২৫</option>
+                  <option value="Y2025_2026">২০২৫-২৬</option>
+                  <option value="Y2026_2027">২০২৬-২৭</option>
+                  <option value="Y2027_2028">২০২৭-২৮</option>
+                  <option value="Y2028_2029">২০২৮-২৯</option>
+                  <option value="Y2029_2030">২০২৯-৩০</option>
+                  <option value="Y2030_2031">২০৩০-৩১</option>
+                  <option value="Y2031_2032">২০৩১-৩২</option>
+                  <option value="Y2032_2033">২০৩২-৩৩</option>
+                  <option value="Y2033_2034">২০৩৩-৩৪</option>
                 </select>
               </div>
             </>
@@ -1394,7 +1608,7 @@ export default function CertificatesPage() {
                   </button>
 
                   <button
-                    onClick={() => handlePrint_trade(cert)}
+                    onClick={() => handlePrintTradeLicense(cert)}
                     className="text-green-600"
                   >
                     🖨️Trade

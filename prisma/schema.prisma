@@ -1,8 +1,5 @@
- 
- 
-
 generator client {
-  provider = "prisma-client-js" 
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -49,7 +46,7 @@ model User {
   email      String   @unique
   password   String
   role       Role     @default(USER)
-  is_deleted Boolean  @default(false)   // ✅ added
+  is_deleted Boolean  @default(false) // ✅ added
   createdAt  DateTime @default(now())
 }
 
@@ -80,7 +77,7 @@ model Holding_Information {
   othersRent       Int
   imposedTax       Int
   collections      HoldingCollection[]
-  is_deleted       Boolean             @default(false)   // ✅ added
+  is_deleted       Boolean             @default(false) // ✅ added
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
 
@@ -88,52 +85,22 @@ model Holding_Information {
 }
 
 model HoldingCollection {
-  id                   Int                 @id @default(autoincrement())
+  id                   Int        @id @default(autoincrement())
   holdingInformationId Int
   holdingNumber        String
-  fiscalYear           FiscalYear          @default(Y2025_2026)
+  fiscalYear           FiscalYear @default(Y2025_2026)
   amount               Int
   paymentDate          DateTime
-  is_deleted           Boolean             @default(false)   // ✅ added
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
+  is_deleted           Boolean    @default(false) // ✅ added
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
 
-  holdingInformation   Holding_Information @relation(fields: [holdingInformationId], references: [id])
+  holdingInformation Holding_Information @relation(fields: [holdingInformationId], references: [id])
 
   @@index([holdingInformationId])
 }
 
-model Certificate {
-  id            Int      @id @default(autoincrement())
-  type          String   // নাগরিক সনদ, জাতীয়তা সনদ, ইত্যাদি
-  applicantName String
-  fatherName    String?
-  motherName    String?
-  spouse    String?
-  birth_no    String?
-  trade_name    String?
-  trade_address    String?
-  trade_fee    String?
-  trade_capital_tax     String?
-  trade_due     String?
-  trade_vat    String?
-  trade_total_tax     String?
-  trade_type     String?
-  fiscalYear           FiscalYear          @default(Y2025_2026)
-  birthDate     DateTime?
-  address       String?
- nid          String?  
-ward         String?
-mouza        String?  
-post_office  String?
-holding_no   String?
-letter_count Int @default(0)
-  issuedDate    DateTime @default(now())
-  notes         String?  @db.Text
-  is_deleted    Boolean  @default(false)   // ✅ added
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
+
 
 model Employees {
   id          Int         @id @default(autoincrement())
@@ -143,21 +110,57 @@ model Employees {
   notes       String?     @db.Text
   order       Int         @default(1)
   designation Designation @default(CHAIRMAN)
-  is_deleted  Boolean     @default(false)   // ✅ added
+  is_deleted  Boolean     @default(false) // ✅ added
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
 
 model OfficeSettings {
-  id         Int      @id @default(autoincrement())
-  union_name String?
-  upazila String?
-  district String?
+  id           Int      @id @default(autoincrement())
+  union_name   String?
+  upazila      String?
+  district     String?
   letter_count String?
-  notes      String?  @db.Text
-  sarok_no String? 
-  is_deleted Boolean  @default(false)   // ✅ added
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  notes        String?  @db.Text
+  sarok_no     String?
+  is_deleted   Boolean  @default(false) // ✅ added
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
+
+model Certificate {
+  id                Int        @id @default(autoincrement())
+  type              String // নাগরিক সনদ, জাতীয়তা সনদ, ইত্যাদি
+  applicantName     String
+  fatherName        String?
+  motherName        String?
+  spouse            String?
+  birth_no          String?
+  trade_name        String?
+  trade_address     String?
+  trade_fee         String?
+  trade_capital_tax String?
+  trade_due         String?
+  trade_vat         String?
+  trade_total_tax   String?
+  trade_type        String?
+  fiscalYear        FiscalYear @default(Y2025_2026)
+  fiscalYearEnd        FiscalYear @default(Y2025_2026)
+  birthDate         DateTime?
+  address           String?
+  nid               String?
+  ward              String?
+  mouza             String?
+  post_office       String?
+  holding_no        String?
+  letter_count      Int        @default(0)
+  issuedDate        DateTime   @default(now())
+  notes             String?    @db.Text
+  is_deleted        Boolean    @default(false) // ✅ added
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+}
+
+//npx prisma migrate dev --name add_spouse_field
+//npx prisma generate
 
