@@ -112,7 +112,14 @@ model Certificate {
   spouse    String?
   birth_no    String?
   trade_name    String?
-  trade_address     String?
+  trade_address    String?
+  trade_fee    String?
+  trade_capital_tax     String?
+  trade_due     String?
+  trade_vat    String?
+  trade_total_tax     String?
+  trade_type     String?
+  fiscalYear           FiscalYear          @default(Y2025_2026)
   birthDate     DateTime?
   address       String?
  nid          String?  

@@ -125,6 +125,15 @@ export default function CertificatesPage() {
       notes: "",
       trade_name: "",
       trade_address: "",
+
+       trade_fee: "",
+  trade_capital_tax: "",
+  trade_due: "",
+  trade_vat: "",
+  trade_total_tax: "",
+  trade_type: "",
+  fiscalYear: "Y2025_2026", // default
+
     });
   };
 
@@ -206,6 +215,15 @@ export default function CertificatesPage() {
       notes: cert.notes || "",
       trade_name: cert.trade_name || "",
       trade_address: cert.trade_address || "",
+
+       trade_fee: cert.trade_fee || "",
+    trade_capital_tax: cert.trade_capital_tax || "",
+    trade_due: cert.trade_due || "",
+    trade_vat: cert.trade_vat || "",
+    trade_total_tax: cert.trade_total_tax || "",
+    trade_type: cert.trade_type || "",
+    fiscalYear: cert.fiscalYear || "Y2025_2026",
+    
     });
   };
 
@@ -541,6 +559,371 @@ export default function CertificatesPage() {
     };
   };
 
+
+
+  const handlePrint_trade = async (cert) => {
+    const origin = window.location.origin;
+
+    const govtImg = `${origin}/images/govt.png`;
+    const unionImg = `${origin}/images/union2.png`;
+    const qrImg = `${origin}/images/qr.png`;
+    const qrUrl = `${origin}/verify/certificate?id=${cert.id}`;
+    const qrImg_with_link = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+      qrUrl
+    )}&size=100x100`;
+    //const qrImg_with_link = `https://api.qrserver.com/v1/create-qr-code/?data=https://google.com&size=150x150`;
+
+    const preloadImage = (url) => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.src = url;
+        img.onload = () => resolve(url);
+        img.onerror = () => resolve(url);
+      });
+    };
+
+    try {
+      await Promise.all([
+        preloadImage(govtImg),
+        preloadImage(unionImg),
+        preloadImage(qrImg),
+      ]);
+    } catch (error) {
+      console.error("Error preloading images:", error);
+    }
+
+    const printContents = `
+    <!DOCTYPE html>
+    <html lang="bn">
+    <head>
+      <meta charset="UTF-8">
+      <title>${cert.type || "Certificate"}</title>
+      <style>
+        @page {
+          size: A4;
+          margin: 0;
+        }
+
+        body {
+          font-family: 'SolaimanLipi', 'Kalpurush', 'Noto Serif Bengali', serif;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+          margin: 0;
+          padding: 0;
+          line-height: 1.1;
+          background: #f9f9f9;
+        }
+
+        .outer-border {
+          margin: 15px;
+          padding: 7px;
+          background: #000;
+        }
+
+        .middle-border {
+          padding: 12px;
+          background: #fff;
+        }
+
+        .inner-border {
+          padding: 15px;
+          border: 1px solid #000;
+          border-radius: 3px;
+          background: white;
+          position: relative;
+          box-sizing: border-box;
+          min-height: calc(100vh - 160px);
+          overflow: hidden;
+          z-index: 1;
+        }
+
+        .watermark {
+          background-image: url('${unionImg}');
+          background-repeat: no-repeat;
+          background-position: center;
+          background-size: 60%;
+          opacity: 0.08;
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+        }
+
+        .header-section {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 10px;
+          padding: 0 20px;
+          position: relative;
+          z-index: 1;
+          line-height:0.9;
+          font-size:12px;
+        }
+
+        .header-logo {
+          width: 80px;
+          height: auto;
+        }
+
+        .header-title {
+          font-size: 13px;
+          font-weight: bold;
+          text-align: center;
+          flex: 1;
+        }
+
+        hr {
+          border: 1px solid #000;
+          margin-top: 7px;
+          margin-bottom: 5px;
+        }
+
+        .top-section {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          z-index: 1;
+        
+        }
+
+        .top-section p {
+          margin: 0;
+            margin-top:5px;
+        }
+
+        h2 {
+          text-align: center;
+          
+          margin: 10px 0;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 10px 0;
+        }
+
+        table tr td {
+          padding: 5px 0;
+        }
+
+        p {
+          z-index: 1;
+        }
+
+        .signature-area {
+          margin-top: 80px;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 30px;
+          z-index: 1;
+        }
+
+        .signature-box {
+          text-align: center;
+          line-height: 1;
+        }
+
+        .qr-code {
+          width: 80px;
+          height: auto;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="outer-border">
+        <div class="middle-border">
+          <div class="inner-border">
+            <div class="watermark"></div>
+
+            <div class="header-section">
+              <img src="${govtImg}" class="header-logo" alt="Government Logo" />
+              <h3 class="header-title">${settings?.notes || ""}</h3>
+              <img src="${unionImg}" class="header-logo" alt="Union Logo" />
+            </div>
+
+            
+
+            <div class="top-section">
+              <p>স্মারক নং: ${settings?.sarok_no}${settings?.letter_count}</p>
+              <p>তারিখ: ${formatDate(cert.issuedDate || new Date())}</p>
+            </div>
+
+            <div style="border: 1px solid green;margin:auto; background-color: #e6f4ea; padding: 5px; margin-top: 15px; border-radius: 7px; width: 200px; text-align: center;">
+  <h1 style="font-size: 15px; color: green; margin: auto;">
+    ${cert.type || "সার্টিফিকেট"}
+  </h1>
+</div>
+
+
+
+            
+
+            <table>
+            <tr>
+    <td style="width: 30%;">প্রতিষ্ঠানের নাম</td>
+    <td style="margin-left:20px;">: ${cert.trade_name}</td>
+  </tr>
+
+
+   <tr>
+    <td style="width: 30%;">পেশা ও ব্যবসার ধরণ</td>
+    <td style="margin-left:20px;">: ${cert.trade_type}</td>
+  </tr>
+
+
+  <tr>
+    <td style="width: 30%;">প্রতিষ্ঠানের ঠিকানা</td>
+    <td style="margin-left:20px;">: ${cert.trade_address}</td>
+  </tr>
+
+
+  <tr>
+    <td style="width: 30%;">লাইসেন্সধারীর নাম</td>
+    <td style="margin-left:20px;">: ${cert.applicantName}</td>
+  </tr>
+  <tr>
+    <td>পিতার নাম</td>
+    <td>: ${cert.fatherName || "-"}</td>
+  </tr>
+  <tr>
+    <td>মাতার নাম</td>
+    <td>: ${cert.motherName || "-"}</td>
+  </tr>
+
+  <tr>
+    <td>স্বামী/ স্ত্রীর নাম</td>
+    <td>: ${cert.spouse || ""}</td>
+  </tr>
+  <tr>
+    <td>জন্ম তারিখ</td>
+     
+    <td>: ${formatDobDate(cert.birthDate?.substring(0, 10)) || "-"}</td>
+  </tr>
+  <tr>
+    <td>গ্রাম</td>
+    <td>: ${cert.address || "-"}</td>
+  </tr>
+  <tr>
+    <td>জাতীয় পরিচয়পত্র নম্বর</td>
+    <td>: ${cert.nid || ""}</td>
+  </tr>
+
+  <tr>
+    <td>জন্ম নিবন্ধন নম্বর</td>
+    <td>: ${cert.birth_no || ""}</td>
+  </tr>
+  <tr>
+    <td>ওয়ার্ড</td>
+    <td>: ${cert.ward || "-"}</td>
+    </tr>
+    <tr>
+    <td>হোল্ডিং নং</td>
+    <td>: ${cert.holding_no || "-"}</td>
+  </tr>
+   
+    
+   
+  <tr>
+    <td>মৌজা</td>
+    <td>: ${cert.mouza || "-"}</td>
+  </tr>
+  
+
+  <tr>
+    <td>ডাকঘর</td>
+    <td>: ${cert.post_office || "-"}</td>
+  </tr>
+
+  <hr>
+
+   <tr>
+    <td>ট্রেড লাইসেন্স ফি</td>
+    <td>: ${cert.trade_fee || "-"}</td>
+  </tr>
+
+   <tr>
+    <td>মুলধন কর</td>
+    <td>: ${cert.trade_capital_tax || "-"}</td>
+  </tr>
+
+
+   <tr>
+    <td>বকেয়া</td>
+    <td>: ${cert.trade_due || "-"}</td>
+  </tr>
+
+   <tr>
+    <td>ভ্যাট</td>
+    <td>: ${cert.trade_vat || "-"}</td>
+  </tr>
+
+   <tr>
+    <td>সর্বমোট কর</td>
+    <td>: ${cert.trade_total_tax|| "-"}</td>
+  </tr>
+
+    
+
+
+
+   
+</table>
+
+<div>
+উল্লেখিত পেশা ও ব্যবসা বাণিজ্য পরিচালনার নিমিত্তে চলতি আর্থিক বছর ${cert.fiscalYear} সনের লাইসেন্স প্রদান করা হলো। অত্র লাইসেন্স ${cert.fiscalYear} ইং সনের ৩০শে জুন পর্যন্ত কার্যকর থাকবে।
+
+</div>
+<div style="text-align:justify; line-height:1.6">
+  ${cert.notes || "-"}
+</div>
+
+
+          
+
+            <div class="signature-area">
+              <div class="signature-box">
+                <p style="margin: 0; width: 200px; padding-top: 5px;">${
+                  signer2.name
+                }</p>
+                <p>${designationText2}</p>
+                <p>${settings?.union_name}</p>
+                <p>${settings?.upazila}, ${settings?.district}</p>
+              </div>
+
+              <img src="${qrImg_with_link}" class="qr-code" alt="QR Code" />
+
+              <div class="signature-box">
+                <p style="margin: 0; width: 200px; padding-top: 5px;">${
+                  signer.name
+                }</p>
+                <p>${designationText}</p>
+                <p>${settings?.union_name}</p>
+                <p>${settings?.upazila}, ${settings?.district}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+    const newWin = window.open("", "_blank", "width=800,height=1000");
+    newWin.document.write(printContents);
+    newWin.document.close();
+
+    newWin.onload = () => {
+      setTimeout(() => {
+        newWin.print();
+        // newWin.close(); // চাইলে প্রিন্ট শেষে বন্ধ করতে এই লাইন আনকমেন্ট করো
+      }, 500);
+    };
+  };
+
+
+
   return (
     <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">ইউনিয়ন পরিষদ সকল সনদ</h1>
@@ -689,6 +1072,108 @@ export default function CertificatesPage() {
                   placeholder="ট্রেডের ঠিকানা"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="font-semibold text-indigo-700">
+                  ট্রেডের ধরন
+                </label>
+                <input
+                  type="text"
+                  value={form.trade_type}
+                  onChange={(e) =>
+                    setForm({ ...form, trade_type: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                  placeholder="ট্রেডের ধরন"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-indigo-700">
+                  {" "}
+                  ট্রেড লাইসেন্স ফি
+                </label>
+                <input
+                  type="text"
+                  value={form.trade_fee}
+                  onChange={(e) =>
+                    setForm({ ...form, trade_fee: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                  placeholder="ট্রেড লাইসেন্স ফি"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-indigo-700">
+                  মুলধন কর
+                </label>
+                <input
+                  type="text"
+                  value={form.trade_capital_tax}
+                  onChange={(e) =>
+                    setForm({ ...form, trade_capital_tax: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                  placeholder="মুলধন কর"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-indigo-700">বকেয়া</label>
+                <input
+                  type="text"
+                  value={form.trade_due}
+                  onChange={(e) =>
+                    setForm({ ...form, trade_due: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                  placeholder="বকেয়া"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-indigo-700">ভ্যাট</label>
+                <input
+                  type="text"
+                  value={form.trade_vat}
+                  onChange={(e) =>
+                    setForm({ ...form, trade_vat: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                  placeholder="ভ্যাট"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-indigo-700">
+                  সর্বমোট কর
+                </label>
+                <input
+                  type="text"
+                  value={form.trade_total_tax}
+                  onChange={(e) =>
+                    setForm({ ...form, trade_total_tax: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                  placeholder="মোট কর"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-indigo-700">অর্থবছর</label>
+                <select
+                  value={form.fiscalYear}
+                  onChange={(e) =>
+                    setForm({ ...form, fiscalYear: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                >
+                  <option value="Y2024_2025">২০২৪-২৫</option>
+                  <option value="Y2025_2026">২০২৫-২৬</option>
+                  <option value="Y2026_2027">২০২৬-২৭</option>
+                </select>
               </div>
             </>
           )}
@@ -907,6 +1392,15 @@ export default function CertificatesPage() {
                   >
                     🖨️
                   </button>
+
+                  <button
+                    onClick={() => handlePrint_trade(cert)}
+                    className="text-green-600"
+                  >
+                    🖨️Trade
+                  </button>
+
+
                 </td>
               </tr>
             ))}
