@@ -111,6 +111,8 @@ model Certificate {
   motherName    String?
   spouse    String?
   birth_no    String?
+  trade_name    String?
+  trade_address     String?
   birthDate     DateTime?
   address       String?
  nid          String?  

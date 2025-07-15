@@ -47,7 +47,7 @@ export default function CertificatesPage() {
     applicantName: "",
     fatherName: "",
     motherName: "",
-    spouse: "", 
+    spouse: "",
     birthDate: "",
     address: "",
     issuedDate: today,
@@ -59,6 +59,8 @@ export default function CertificatesPage() {
     holding_no: "",
     notes: "",
     letter_count: "",
+    trade_name: "",
+    trade_address: "",
   });
 
   const printRef = useRef();
@@ -104,26 +106,27 @@ export default function CertificatesPage() {
   const designationText2 = "ইউপি প্রশাসনিক কর্মকর্তা";
 
   const resetForm = () => {
-  setForm({
-    id: null,
-    type: "",
-    applicantName: "",
-    fatherName: "",
-    motherName: "",
-    spouse: "", // ✅ spouse
-    birthDate: "",
-    address: "",
-    issuedDate: today,
-    nid: "",
-    birth_no: "", // ✅ birth_no
-    ward: "",
-    mouza: "",
-    post_office: "",
-    holding_no: "",
-    notes: "",
-  });
-};
-
+    setForm({
+      id: null,
+      type: "",
+      applicantName: "",
+      fatherName: "",
+      motherName: "",
+      spouse: "", // ✅ spouse
+      birthDate: "",
+      address: "",
+      issuedDate: today,
+      nid: "",
+      birth_no: "", // ✅ birth_no
+      ward: "",
+      mouza: "",
+      post_office: "",
+      holding_no: "",
+      notes: "",
+      trade_name: "",
+      trade_address: "",
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -190,17 +193,19 @@ export default function CertificatesPage() {
       applicantName: cert.applicantName,
       fatherName: cert.fatherName || "",
       motherName: cert.motherName || "",
-       spouse: cert.spouse || "",
+      spouse: cert.spouse || "",
       birthDate: cert.birthDate ? cert.birthDate.substring(0, 10) : "",
       address: cert.address || "",
       issuedDate: cert.issuedDate ? cert.issuedDate.substring(0, 10) : today,
       nid: cert.nid || "",
-       birth_no: cert.birth_no || "", // ✅ birth_no
+      birth_no: cert.birth_no || "", // ✅ birth_no
       ward: cert.ward || "",
       mouza: cert.mouza || "",
       post_office: cert.post_office || "",
       holding_no: cert.holding_no || "",
       notes: cert.notes || "",
+      trade_name: cert.trade_name || "",
+      trade_address: cert.trade_address || "",
     });
   };
 
@@ -216,22 +221,22 @@ export default function CertificatesPage() {
   // };
 
   const formatDobDate = (date) => {
-    const data=date?.substring(0, 10).split("-");
+    const data = date?.substring(0, 10).split("-");
     return `${data[2]}-${data[1]}-${data[0]}`;
-  if (!date || date.length !== 8) return date; // 8 digit হলে মনে করব yyyymmdd
-  const year = date.slice(0, 4);
-  const month = date.slice(4, 6);
-  const day = date.slice(6, 8);
-  return `${day}-${month}-${year}`;
-};
+    if (!date || date.length !== 8) return date; // 8 digit হলে মনে করব yyyymmdd
+    const year = date.slice(0, 4);
+    const month = date.slice(4, 6);
+    const day = date.slice(6, 8);
+    return `${day}-${month}-${year}`;
+  };
 
-const formatDate = (date) => {
-  const d = new Date(date);
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const year = d.getFullYear();
-  return `${day}-${month}-${year}`;
-};
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
 
   const handlePrint = async (cert) => {
     const origin = window.location.origin;
@@ -365,7 +370,7 @@ const formatDate = (date) => {
 
         h2 {
           text-align: center;
-          text-decoration: underline;
+          
           margin: 10px 0;
         }
 
@@ -422,7 +427,13 @@ const formatDate = (date) => {
               <p>তারিখ: ${formatDate(cert.issuedDate || new Date())}</p>
             </div>
 
-            <h2 style="margin-top:15px; font-size:14px;">${cert.type || "সার্টিফিকেট"}</h2>
+            <div style="border: 1px solid green;margin:auto; background-color: #e6f4ea; padding: 5px; margin-top: 15px; border-radius: 7px; width: 200px; text-align: center;">
+  <h1 style="font-size: 15px; color: green; margin: auto;">
+    ${cert.type || "সার্টিফিকেট"}
+  </h1>
+</div>
+
+
 
             <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;প্রত্যয়ন করা যাচ্ছে যে,</p>
 
@@ -447,8 +458,7 @@ const formatDate = (date) => {
   <tr>
     <td>জন্ম তারিখ</td>
      
-    <td>: ${
-      formatDobDate(cert.birthDate?.substring(0, 10)) || "-"}</td>
+    <td>: ${formatDobDate(cert.birthDate?.substring(0, 10)) || "-"}</td>
   </tr>
   <tr>
     <td>গ্রাম</td>
@@ -535,258 +545,306 @@ const formatDate = (date) => {
     <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">ইউনিয়ন পরিষদ সকল সনদ</h1>
 
-     <form
-  onSubmit={handleSubmit}
-  className="bg-white border p-6 rounded-xl shadow mb-8 space-y-4"
->
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <label className="font-semibold text-indigo-700">সনদের ধরন</label>
-      <select
-        required
-        value={form.type}
-        onChange={(e) => setForm({ ...form, type: e.target.value })}
-        className="border p-2 rounded w-full"
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white border p-6 rounded-xl shadow mb-8 space-y-4"
       >
-        <option value="">-- সনদের ধরন নির্বাচন করুন --</option>
-        <option value="নাগরিকত্ব সনদ">নাগরিকত্ব সনদ</option>
-        <option value="জাতীয়তা সনদ">জাতীয়তা সনদ</option>
-        <option value="ওয়ারিশ সনদ">ওয়ারিশ সনদ</option>
-        <option value="বার্ষিক আয়ের সনদ">বার্ষিক আয়ের সনদ</option>
-        <option value="বিবিধ সনদ">বিবিধ সনদ</option>
-      </select>
-    </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="font-semibold text-indigo-700">সনদের ধরন</label>
+            <select
+              required
+              value={form.type}
+              onChange={(e) => setForm({ ...form, type: e.target.value })}
+              className="border p-2 rounded w-full"
+            >
+              <option value="">-- সনদের ধরন নির্বাচন করুন --</option>
+              <option value="নাগরিকত্ব সনদ">নাগরিকত্ব সনদ</option>
+              <option value="জাতীয়তা সনদ">জাতীয়তা সনদ</option>
+              <option value="ওয়ারিশ সনদ">ওয়ারিশ সনদ</option>
+              <option value="বার্ষিক আয়ের সনদ">বার্ষিক আয়ের সনদ</option>
+              <option value="ট্রেড লাইসেন্স">ট্রেড লাইসেন্স</option>
+              <option value="বিবিধ সনদ">বিবিধ সনদ</option>
+            </select>
+          </div>
 
-    <div>
-      <label className="font-semibold text-indigo-700">আবেদনকারীর নাম</label>
-      <input
-        type="text"
-        required
-        value={form.applicantName}
-        onChange={(e) => setForm({ ...form, applicantName: e.target.value })}
-        className="border p-2 rounded w-full"
-        placeholder="আবেদনকারীর নাম"
-      />
-    </div>
+          <div>
+            <label className="font-semibold text-indigo-700">
+              আবেদনকারীর নাম
+            </label>
+            <input
+              type="text"
+              required
+              value={form.applicantName}
+              onChange={(e) =>
+                setForm({ ...form, applicantName: e.target.value })
+              }
+              className="border p-2 rounded w-full"
+              placeholder="আবেদনকারীর নাম"
+            />
+          </div>
 
-    <div>
-      <label className="font-semibold text-indigo-700">পিতার নাম</label>
-      <input
-        type="text"
-        value={form.fatherName}
-        onChange={(e) => setForm({ ...form, fatherName: e.target.value })}
-        className="border p-2 rounded w-full"
-        placeholder="পিতার নাম"
-        required
-      />
-    </div>
+          <div>
+            <label className="font-semibold text-indigo-700">পিতার নাম</label>
+            <input
+              type="text"
+              value={form.fatherName}
+              onChange={(e) => setForm({ ...form, fatherName: e.target.value })}
+              className="border p-2 rounded w-full"
+              placeholder="পিতার নাম"
+              required
+            />
+          </div>
 
-    <div>
-      <label className="font-semibold text-indigo-700">মাতার নাম</label>
-      <input
-        type="text"
-        value={form.motherName}
-        onChange={(e) => setForm({ ...form, motherName: e.target.value })}
-        className="border p-2 rounded w-full"
-        placeholder="মাতার নাম"
-        required
-      />
-    </div>
+          <div>
+            <label className="font-semibold text-indigo-700">মাতার নাম</label>
+            <input
+              type="text"
+              value={form.motherName}
+              onChange={(e) => setForm({ ...form, motherName: e.target.value })}
+              className="border p-2 rounded w-full"
+              placeholder="মাতার নাম"
+              required
+            />
+          </div>
 
-    <div>
-      <label className="font-semibold text-indigo-700">স্বামী/স্ত্রীর নাম</label>
-      <input
-        type="text"
-        value={form.spouse}
-        onChange={(e) => setForm({ ...form, spouse: e.target.value })}
-        className="border p-2 rounded w-full"
-        placeholder="স্বামী/স্ত্রীর নাম"
-      />
-    </div>
+          <div>
+            <label className="font-semibold text-indigo-700">
+              স্বামী/স্ত্রীর নাম
+            </label>
+            <input
+              type="text"
+              value={form.spouse}
+              onChange={(e) => setForm({ ...form, spouse: e.target.value })}
+              className="border p-2 rounded w-full"
+              placeholder="স্বামী/স্ত্রীর নাম"
+            />
+          </div>
 
-    <div>
-      <label className="font-semibold text-indigo-700">জন্ম তারিখ</label>
-      <input
-        type="date"
-        value={form.birthDate}
-        onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
-        className="border p-2 rounded w-full"
-      />
-    </div>
+          <div>
+            <label className="font-semibold text-indigo-700">জন্ম তারিখ</label>
+            <input
+              type="date"
+              value={form.birthDate}
+              onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
+              className="border p-2 rounded w-full"
+            />
+          </div>
 
-    <div>
-      <label className="font-semibold text-indigo-700">
-        জাতীয় পরিচয়পত্র নম্বর
-      </label>
-      <input
-        type="text"
-        value={form.nid}
-        onChange={(e) => setForm({ ...form, nid: e.target.value })}
-        className="border p-2 rounded w-full"
-        placeholder="NID"
-      />
-    </div>
+          <div>
+            <label className="font-semibold text-indigo-700">
+              জাতীয় পরিচয়পত্র নম্বর
+            </label>
+            <input
+              type="text"
+              value={form.nid}
+              onChange={(e) => setForm({ ...form, nid: e.target.value })}
+              className="border p-2 rounded w-full"
+              placeholder="NID"
+            />
+          </div>
 
-    <div>
-      <label className="font-semibold text-indigo-700">জন্ম নিবন্ধন নম্বর</label>
-      <input
-        type="text"
-        value={form.birth_no}
-        onChange={(e) => setForm({ ...form, birth_no: e.target.value })}
-        className="border p-2 rounded w-full"
-        placeholder="জন্ম নিবন্ধন নম্বর"
-      />
-    </div>
+          <div>
+            <label className="font-semibold text-indigo-700">
+              জন্ম নিবন্ধন নম্বর
+            </label>
+            <input
+              type="text"
+              value={form.birth_no}
+              onChange={(e) => setForm({ ...form, birth_no: e.target.value })}
+              className="border p-2 rounded w-full"
+              placeholder="জন্ম নিবন্ধন নম্বর"
+            />
+          </div>
 
-    {certificates.length === 0 && (
-      <div>
-        <label className="font-semibold text-indigo-700">
-          সনদের নাম্বার (শুধু প্রথমটির জন্য)
-        </label>
-        <input
-          type="text"
-          value={form.letter_count}
-          onChange={(e) =>
-            setForm({ ...form, letter_count: e.target.value })
-          }
-          className="border p-2 rounded w-full"
-          placeholder="Letter Count"
-          required
-        />
-      </div>
-    )}
+          {form.type === "ট্রেড লাইসেন্স" && (
+            <>
+              <div>
+                <label className="font-semibold text-indigo-700">
+                  প্রতিষ্ঠানের নাম
+                </label>
+                <input
+                  type="text"
+                  value={form.trade_name || ""}
+                  onChange={(e) =>
+                    setForm({ ...form, trade_name: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                  placeholder="ট্রেডের নাম"
+                  required
+                />
+              </div>
 
-    <div>
-      <label className="font-semibold text-indigo-700">ওয়ার্ড</label>
-      <input
-        type="text"
-        value={form.ward}
-        onChange={(e) => setForm({ ...form, ward: e.target.value })}
-        className="border p-2 rounded w-full"
-        placeholder="ওয়ার্ড"
-        required
-      />
-    </div>
+              <div>
+                <label className="font-semibold text-indigo-700">
+                  প্রতিষ্ঠানের ঠিকানা
+                </label>
+                <input
+                  type="text"
+                  value={form.trade_address || ""}
+                  onChange={(e) =>
+                    setForm({ ...form, trade_address: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                  placeholder="ট্রেডের ঠিকানা"
+                  required
+                />
+              </div>
+            </>
+          )}
 
-    <div>
-      <label className="font-semibold text-indigo-700">হোল্ডিং</label>
-      <input
-        type="text"
-        value={form.holding_no}
-        onChange={(e) => setForm({ ...form, holding_no: e.target.value })}
-        className="border p-2 rounded w-full"
-        placeholder="হোল্ডিং"
-        required
-      />
-    </div>
+          {certificates.length === 0 && (
+            <div>
+              <label className="font-semibold text-indigo-700">
+                সনদের নাম্বার (শুধু প্রথমটির জন্য)
+              </label>
+              <input
+                type="text"
+                value={form.letter_count}
+                onChange={(e) =>
+                  setForm({ ...form, letter_count: e.target.value })
+                }
+                className="border p-2 rounded w-full"
+                placeholder="Letter Count"
+                required
+              />
+            </div>
+          )}
 
-    <div>
-      <label className="font-semibold text-indigo-700">মৌজা</label>
-      <input
-        type="text"
-        value={form.mouza}
-        onChange={(e) => setForm({ ...form, mouza: e.target.value })}
-        className="border p-2 rounded w-full"
-        placeholder="মৌজা"
-        required
-      />
-    </div>
+          <div>
+            <label className="font-semibold text-indigo-700">ওয়ার্ড</label>
+            <input
+              type="text"
+              value={form.ward}
+              onChange={(e) => setForm({ ...form, ward: e.target.value })}
+              className="border p-2 rounded w-full"
+              placeholder="ওয়ার্ড"
+              required
+            />
+          </div>
 
-    <div>
-      <label className="font-semibold text-indigo-700">পোস্ট অফিস</label>
-      <input
-        type="text"
-        value={form.post_office}
-        onChange={(e) => setForm({ ...form, post_office: e.target.value })}
-        className="border p-2 rounded w-full"
-        placeholder="পোস্ট অফিস"
-        required
-      />
-    </div>
+          <div>
+            <label className="font-semibold text-indigo-700">হোল্ডিং</label>
+            <input
+              type="text"
+              value={form.holding_no}
+              onChange={(e) => setForm({ ...form, holding_no: e.target.value })}
+              className="border p-2 rounded w-full"
+              placeholder="হোল্ডিং"
+              required
+            />
+          </div>
 
-    <div className="md:col-span-2">
-      <label className="font-semibold text-indigo-700">ঠিকানা</label>
-      <textarea
-        value={form.address}
-        onChange={(e) => setForm({ ...form, address: e.target.value })}
-        className="border p-2 rounded w-full"
-        placeholder="ঠিকানা"
-        rows={2}
-      />
-    </div>
+          <div>
+            <label className="font-semibold text-indigo-700">মৌজা</label>
+            <input
+              type="text"
+              value={form.mouza}
+              onChange={(e) => setForm({ ...form, mouza: e.target.value })}
+              className="border p-2 rounded w-full"
+              placeholder="মৌজা"
+              required
+            />
+          </div>
 
-    <div>
-      <label className="font-semibold text-indigo-700">জারি করার তারিখ</label>
-      <input
-        type="date"
-        value={form.issuedDate}
-        onChange={(e) => setForm({ ...form, issuedDate: e.target.value })}
-        className="border p-2 rounded w-full"
-      />
-    </div>
-  </div>
+          <div>
+            <label className="font-semibold text-indigo-700">পোস্ট অফিস</label>
+            <input
+              type="text"
+              value={form.post_office}
+              onChange={(e) =>
+                setForm({ ...form, post_office: e.target.value })
+              }
+              className="border p-2 rounded w-full"
+              placeholder="পোস্ট অফিস"
+              required
+            />
+          </div>
 
-  <div className="mt-4">
-    <label className="font-semibold text-indigo-700">নোটস</label>
-    <button
-      type="button"
-      onClick={handleLoadDefaultNote}
-      className="bg-green-500 text-white mx-4 my-2 px-3 py-1 text-sm rounded-2xl shadow hover:bg-green-600"
-    >
-      Load Default
-    </button>
-    <Editor
-      apiKey="fg6rfz4onq5dx0irorid2gyjdbh9xdpg01k2kdcqk7594hd2"
-      value={form.notes}
-      init={{
-        height: 200,
-        menubar: false,
-        directionality: "ltr",
-        plugins: [
-          "advlist",
-          "autolink",
-          "lists",
-          "link",
-          "charmap",
-          "preview",
-          "anchor",
-          "searchreplace",
-          "visualblocks",
-          "code",
-          "fullscreen",
-          "insertdatetime",
-          "media",
-          "table",
-          "help",
-          "wordcount",
-        ],
-        toolbar:
-          "undo redo | formatselect | bold italic underline | " +
-          "alignleft aligncenter alignright alignjustify | " +
-          "bullist numlist outdent indent | removeformat | help",
-      }}
-      onEditorChange={(content) => setForm({ ...form, notes: content })}
-    />
-  </div>
+          <div className="md:col-span-2">
+            <label className="font-semibold text-indigo-700">ঠিকানা</label>
+            <textarea
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+              className="border p-2 rounded w-full"
+              placeholder="ঠিকানা"
+              rows={2}
+            />
+          </div>
 
-  <button
-    type="submit"
-    className="w-full bg-blue-600 text-white py-2 rounded mt-4"
-  >
-    {form.id ? "আপডেট করুন" : "সেভ করুন"}
-  </button>
+          <div>
+            <label className="font-semibold text-indigo-700">
+              জারি করার তারিখ
+            </label>
+            <input
+              type="date"
+              value={form.issuedDate}
+              onChange={(e) => setForm({ ...form, issuedDate: e.target.value })}
+              className="border p-2 rounded w-full"
+            />
+          </div>
+        </div>
 
-  {form.id && (
-    <button
-      type="button"
-      onClick={() => resetForm()}
-      className="w-full mt-2 bg-gray-400 text-white py-2 rounded"
-    >
-      নতুন ফরম
-    </button>
-  )}
-</form>
+        <div className="mt-4">
+          <label className="font-semibold text-indigo-700">নোটস</label>
+          <button
+            type="button"
+            onClick={handleLoadDefaultNote}
+            className="bg-green-500 text-white mx-4 my-2 px-3 py-1 text-sm rounded-2xl shadow hover:bg-green-600"
+          >
+            Load Default
+          </button>
+          <Editor
+            apiKey="fg6rfz4onq5dx0irorid2gyjdbh9xdpg01k2kdcqk7594hd2"
+            value={form.notes}
+            init={{
+              height: 200,
+              menubar: false,
+              directionality: "ltr",
+              plugins: [
+                "advlist",
+                "autolink",
+                "lists",
+                "link",
+                "charmap",
+                "preview",
+                "anchor",
+                "searchreplace",
+                "visualblocks",
+                "code",
+                "fullscreen",
+                "insertdatetime",
+                "media",
+                "table",
+                "help",
+                "wordcount",
+              ],
+              toolbar:
+                "undo redo | formatselect | bold italic underline | " +
+                "alignleft aligncenter alignright alignjustify | " +
+                "bullist numlist outdent indent | removeformat | help",
+            }}
+            onEditorChange={(content) => setForm({ ...form, notes: content })}
+          />
+        </div>
 
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded mt-4"
+        >
+          {form.id ? "আপডেট করুন" : "সেভ করুন"}
+        </button>
+
+        {form.id && (
+          <button
+            type="button"
+            onClick={() => resetForm()}
+            className="w-full mt-2 bg-gray-400 text-white py-2 rounded"
+          >
+            নতুন ফরম
+          </button>
+        )}
+      </form>
 
       <div className="bg-white border p-4 rounded-xl shadow">
         <h2 className="text-xl font-semibold mb-3">সনদ তালিকা</h2>
