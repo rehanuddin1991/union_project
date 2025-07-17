@@ -45,11 +45,11 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-200 via-indigo-200 to-purple-200 flex items-center justify-center p-10">
+    <div className="  bg-gradient-to-br from-sky-200 via-indigo-200 to-purple-200 flex items-center justify-center p-10">
       <div className="flex flex-col md:flex-row flex-wrap gap-10 max-w-7xl w-full justify-center">
         {employees.map((emp, i) => (
           <div key={emp.id} className="card w-full md:w-96 bg-white shadow-xl border border-indigo-300 hover:shadow-indigo-600 transition-shadow duration-300 rounded-xl flex flex-col">
-            <figure className="px-16 pt-8">
+            <figure className="px-16 pt-4">
               <Image
                 src={ `/images/${i + 1}.jpg` }
                 width={200}

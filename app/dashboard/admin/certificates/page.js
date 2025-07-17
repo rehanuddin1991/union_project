@@ -61,6 +61,15 @@ export default function CertificatesPage() {
     letter_count: "",
     trade_name: "",
     trade_address: "",
+
+    trade_fee: "",
+  trade_capital_tax: "",
+  trade_due: "",
+  trade_vat: "",
+  trade_total_tax: "",
+  trade_type: "",
+  fiscalYear: "Y2025_2026", // default
+  fiscalYearEnd: "Y2025_2026", // default
   });
 
   const printRef = useRef();
@@ -133,6 +142,7 @@ export default function CertificatesPage() {
   trade_total_tax: "",
   trade_type: "",
   fiscalYear: "Y2025_2026", // default
+  fiscalYearEnd: "Y2025_2026", // default
 
     });
   };
@@ -223,6 +233,7 @@ export default function CertificatesPage() {
     trade_total_tax: cert.trade_total_tax || "",
     trade_type: cert.trade_type || "",
     fiscalYear: cert.fiscalYear || "Y2025_2026",
+    fiscalYearEnd: cert.fiscalYearEnd || "Y2025_2026",
     
     });
   };
@@ -872,12 +883,10 @@ export default function CertificatesPage() {
 </table>
 
 <div>
-উল্লেখিত পেশা ও ব্যবসা বাণিজ্য পরিচালনার নিমিত্তে চলতি আর্থিক বছর ${cert.fiscalYear} সনের লাইসেন্স প্রদান করা হলো। অত্র লাইসেন্স ${cert.fiscalYear} ইং সনের ৩০শে জুন পর্যন্ত কার্যকর থাকবে।
+উল্লেখিত পেশা ও ব্যবসা বাণিজ্য পরিচালনার নিমিত্তে চলতি আর্থিক বছর ${cert.fiscalYear} সনের লাইসেন্স প্রদান করা হলো। অত্র লাইসেন্স ${cert.fiscalYearEnd} ইং সনের ৩০শে জুন পর্যন্ত কার্যকর থাকবে।
 
 </div>
-<div style="text-align:justify; line-height:1.6">
-  ${cert.notes || "-"}
-</div>
+ 
 
 
           
@@ -1040,6 +1049,67 @@ export default function CertificatesPage() {
             />
           </div>
 
+           <div>
+            <label className="font-semibold text-indigo-700">ওয়ার্ড</label>
+            <input
+              type="text"
+              value={form.ward}
+              onChange={(e) => setForm({ ...form, ward: e.target.value })}
+              className="border p-2 rounded w-full"
+              placeholder="ওয়ার্ড"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="font-semibold text-indigo-700">হোল্ডিং</label>
+            <input
+              type="text"
+              value={form.holding_no}
+              onChange={(e) => setForm({ ...form, holding_no: e.target.value })}
+              className="border p-2 rounded w-full"
+              placeholder="হোল্ডিং"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="font-semibold text-indigo-700">মৌজা</label>
+            <input
+              type="text"
+              value={form.mouza}
+              onChange={(e) => setForm({ ...form, mouza: e.target.value })}
+              className="border p-2 rounded w-full"
+              placeholder="মৌজা"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="font-semibold text-indigo-700">পোস্ট অফিস</label>
+            <input
+              type="text"
+              value={form.post_office}
+              onChange={(e) =>
+                setForm({ ...form, post_office: e.target.value })
+              }
+              className="border p-2 rounded w-full"
+              placeholder="পোস্ট অফিস"
+              required
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="font-semibold text-indigo-700">ঠিকানা</label>
+            <textarea
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+              className="border p-2 rounded w-full"
+              placeholder="ঠিকানা"
+              rows={2}
+            />
+          </div>
+
           {form.type === "ট্রেড লাইসেন্স" && (
             <>
               <div>
@@ -1162,7 +1232,7 @@ export default function CertificatesPage() {
               </div>
 
               <div>
-                <label className="font-semibold text-indigo-700">অর্থবছর</label>
+                <label className="font-semibold text-indigo-700">অর্থবছর (শুরু)</label>
                 <select
                   value={form.fiscalYear}
                   onChange={(e) =>
@@ -1173,6 +1243,27 @@ export default function CertificatesPage() {
                   <option value="Y2024_2025">২০২৪-২৫</option>
                   <option value="Y2025_2026">২০২৫-২৬</option>
                   <option value="Y2026_2027">২০২৬-২৭</option>
+                  <option value="Y2027_2028">২০২৭-২৮</option>
+                  <option value="Y2028_2029">২০২৮-২৯</option>
+                  <option value="Y2029_2030">২০২৯-৩০</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="font-semibold text-indigo-700">অর্থবছর (শেষ)</label>
+                <select
+                  value={form.fiscalYearEnd}
+                  onChange={(e) =>
+                    setForm({ ...form, fiscalYearEnd: e.target.value })
+                  }
+                  className="border p-2 rounded w-full"
+                >
+                  <option value="Y2024_2025">২০২৪-২৫</option>
+                  <option value="Y2025_2026">২০২৫-২৬</option>
+                  <option value="Y2026_2027">২০২৬-২৭</option>
+                   <option value="Y2027_2028">২০২৭-২৮</option>
+                  <option value="Y2028_2029">২০২৮-২৯</option>
+                  <option value="Y2029_2030">২০২৯-৩০</option>
                 </select>
               </div>
             </>
@@ -1196,66 +1287,7 @@ export default function CertificatesPage() {
             </div>
           )}
 
-          <div>
-            <label className="font-semibold text-indigo-700">ওয়ার্ড</label>
-            <input
-              type="text"
-              value={form.ward}
-              onChange={(e) => setForm({ ...form, ward: e.target.value })}
-              className="border p-2 rounded w-full"
-              placeholder="ওয়ার্ড"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="font-semibold text-indigo-700">হোল্ডিং</label>
-            <input
-              type="text"
-              value={form.holding_no}
-              onChange={(e) => setForm({ ...form, holding_no: e.target.value })}
-              className="border p-2 rounded w-full"
-              placeholder="হোল্ডিং"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="font-semibold text-indigo-700">মৌজা</label>
-            <input
-              type="text"
-              value={form.mouza}
-              onChange={(e) => setForm({ ...form, mouza: e.target.value })}
-              className="border p-2 rounded w-full"
-              placeholder="মৌজা"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="font-semibold text-indigo-700">পোস্ট অফিস</label>
-            <input
-              type="text"
-              value={form.post_office}
-              onChange={(e) =>
-                setForm({ ...form, post_office: e.target.value })
-              }
-              className="border p-2 rounded w-full"
-              placeholder="পোস্ট অফিস"
-              required
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="font-semibold text-indigo-700">ঠিকানা</label>
-            <textarea
-              value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-              className="border p-2 rounded w-full"
-              placeholder="ঠিকানা"
-              rows={2}
-            />
-          </div>
+         
 
           <div>
             <label className="font-semibold text-indigo-700">
