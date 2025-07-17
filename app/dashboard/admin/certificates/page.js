@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dynamic from "next/dynamic";
-import { convertToBanglaNumber } from '@/utils_js/utils';
+import { convertToBanglaNumber,numberToBanglaWords  } from "@/utils_js/utils";
 
 const Editor = dynamic(
   () => import("@tinymce/tinymce-react").then((mod) => mod.Editor),
@@ -12,8 +12,6 @@ const Editor = dynamic(
 );
 
 export default function CertificatesPage() {
-  
- 
   const [certificates, setCertificates] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [settings, setSettings] = useState(null);
@@ -66,13 +64,13 @@ export default function CertificatesPage() {
     trade_address: "",
 
     trade_fee: "",
-  trade_capital_tax: "",
-  trade_due: "",
-  trade_vat: "",
-  trade_total_tax: "",
-  trade_type: "",
-  fiscalYear: "Y2025_2026", // default
-  fiscalYearEnd: "Y2025_2026", // default
+    trade_capital_tax: "",
+    trade_due: "",
+    trade_vat: "",
+    trade_total_tax: "",
+    trade_type: "",
+    fiscalYear: "Y2025_2026", // default
+    fiscalYearEnd: "Y2025_2026", // default
   });
 
   const printRef = useRef();
@@ -138,15 +136,14 @@ export default function CertificatesPage() {
       trade_name: "",
       trade_address: "",
 
-       trade_fee: "",
-  trade_capital_tax: "",
-  trade_due: "",
-  trade_vat: "",
-  trade_total_tax: "",
-  trade_type: "",
-  fiscalYear: "Y2025_2026", // default
-  fiscalYearEnd: "Y2025_2026", // default
-
+      trade_fee: "",
+      trade_capital_tax: "",
+      trade_due: "",
+      trade_vat: "",
+      trade_total_tax: "",
+      trade_type: "",
+      fiscalYear: "Y2025_2026", // default
+      fiscalYearEnd: "Y2025_2026", // default
     });
   };
 
@@ -229,15 +226,14 @@ export default function CertificatesPage() {
       trade_name: cert.trade_name || "",
       trade_address: cert.trade_address || "",
 
-       trade_fee: cert.trade_fee || "",
-    trade_capital_tax: cert.trade_capital_tax || "",
-    trade_due: cert.trade_due || "",
-    trade_vat: cert.trade_vat || "",
-    trade_total_tax: cert.trade_total_tax || "",
-    trade_type: cert.trade_type || "",
-    fiscalYear: cert.fiscalYear || "Y2025_2026",
-    fiscalYearEnd: cert.fiscalYearEnd || "Y2025_2026",
-    
+      trade_fee: cert.trade_fee || "",
+      trade_capital_tax: cert.trade_capital_tax || "",
+      trade_due: cert.trade_due || "",
+      trade_vat: cert.trade_vat || "",
+      trade_total_tax: cert.trade_total_tax || "",
+      trade_type: cert.trade_type || "",
+      fiscalYear: cert.fiscalYear || "Y2025_2026",
+      fiscalYearEnd: cert.fiscalYearEnd || "Y2025_2026",
     });
   };
 
@@ -573,13 +569,11 @@ export default function CertificatesPage() {
     };
   };
 
-
-
   const handlePrint_trade = async (cert) => {
     const origin = window.location.origin;
-    const [startYear, endYear] = cert.fiscalYearEnd.split('_');
-    const [fiscal_start, fiscal_end_bk] = cert.fiscalYear.split('_');
-    const [fiscal_start_bk, fiscal_end] = cert.fiscalYearEnd.split('_');
+    const [startYear, endYear] = cert.fiscalYearEnd.split("_");
+    const [fiscal_start, fiscal_end_bk] = cert.fiscalYear.split("_");
+    const [fiscal_start_bk, fiscal_end] = cert.fiscalYearEnd.split("_");
 
     const govtImg = `${origin}/images/govt.png`;
     const unionImg = `${origin}/images/union2.png`;
@@ -746,6 +740,69 @@ export default function CertificatesPage() {
           width: 80px;
           height: auto;
         }
+
+        .container2 {
+  margin-top: 1rem; /* mt-6 */
+  display: flex;
+  justify-content: center;
+}
+
+.tax-table {
+  width: 100%;
+  max-width: 30rem; /* max-w-xl (640px) */
+  border: 1px solid #86efac; /* green-300 */
+  border-radius: 0.4rem; /* rounded-xl */
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1); /* shadow-md */
+  border-collapse: collapse;
+}
+
+.tax-table tbody tr.header-row {
+  border-bottom: 1px solid #bbf7d0; /* border-b */
+  background-color: #dcfce7; /* green-100 */
+}
+
+.tax-table tbody tr.header-row td.header-cell {
+  padding: 0.3rem; /* p-3 */
+  font-weight: 700; /* font-bold */
+  color: #166534; /* text-green-800 */
+  text-align: center;
+   
+}
+
+.tax-table tbody tr.row {
+  border-bottom: 1px solid #bbf7d0; /* border-b */
+}
+
+.tax-table tbody tr.row:last-child {
+  border-bottom: none;
+}
+
+.label-cell {
+  padding: 0.3rem; /* p-3 */
+  font-weight: 600; /* font-semibold */
+  white-space: nowrap;
+}
+
+.input-cell {
+  padding: 0.3rem; /* p-3 */
+}
+
+.input-cell input[type="text"] {
+  width: 100%; /* w-full */
+  padding: 0.3rem 0.3rem; /* p-2 */
+  border: 1px solid #4ade80; /* border-green-400 */
+  border-radius: 0.375rem; /* rounded-md */
+  background-color: #dcfce7; /* bg-green-50 */
+  box-sizing: border-box;
+  text-align:center;
+}
+
+.input-cell input[readonly] {
+  border-color: #22c55e; /* border-green-500 */
+  background-color: #bbf7d0; /* bg-green-100 */
+  font-weight: 700; /* font-bold */
+}
+
       </style>
     </head>
     <body>
@@ -831,55 +888,15 @@ export default function CertificatesPage() {
     <td>জন্ম নিবন্ধন নম্বর</td>
     <td>: ${cert.birth_no || ""}</td>
   </tr>
-  <tr>
-    <td>ওয়ার্ড</td>
-    <td>: ${cert.ward || "-"}</td>
-    </tr>
-    <tr>
-    <td>হোল্ডিং নং</td>
-    <td>: ${cert.holding_no || "-"}</td>
-  </tr>
    
-    
-   
-  <tr>
-    <td>মৌজা</td>
-    <td>: ${cert.mouza || "-"}</td>
-  </tr>
-  
-
-  <tr>
-    <td>ডাকঘর</td>
-    <td>: ${cert.post_office || "-"}</td>
-  </tr>
 
   <hr>
 
-   <tr>
-    <td>ট্রেড লাইসেন্স ফি</td>
-    <td>: ${cert.trade_fee || "-"}</td>
-  </tr>
+   
+  
 
-   <tr>
-    <td>মুলধন কর</td>
-    <td>: ${cert.trade_capital_tax || "-"}</td>
-  </tr>
+  
 
-
-   <tr>
-    <td>বকেয়া</td>
-    <td>: ${cert.trade_due || "-"}</td>
-  </tr>
-
-   <tr>
-    <td>ভ্যাট</td>
-    <td>: ${cert.trade_vat || "-"}</td>
-  </tr>
-
-   <tr>
-    <td>সর্বমোট কর</td>
-    <td>: ${cert.trade_total_tax|| "-"}</td>
-  </tr>
 
     
 
@@ -887,9 +904,63 @@ export default function CertificatesPage() {
 
    
 </table>
+<div class="container2">
+  <table class="tax-table">
+    <tbody>
+      <tr class="header-row">
+        <td colspan="2" class="header-cell">
+          ট্যাক্স বিবরণী
+        </td>
+      </tr>
+
+      <tr class="row">
+        <td class="label-cell">ট্রেড লাইসেন্স ফি</td>
+        <td class="input-cell">
+          <input type="text"  value=${cert.trade_fee || "0"} />
+        </td>
+      </tr>
+
+      <tr class="row">
+        <td class="label-cell">মুলধন কর</td>
+        <td class="input-cell">
+          <input type="text" value=${cert.trade_capital_tax || "0"} />
+        </td>
+      </tr>
+
+      <tr class="row">
+        <td class="label-cell">বকেয়া</td>
+        <td class="input-cell">
+          <input type="text"  value=${cert.trade_due || "0"} />
+        </td>
+      </tr>
+
+      <tr class="row">
+        <td class="label-cell">ভ্যাট</td>
+        <td class="input-cell">
+          <input type="text"   value=${cert.trade_vat || "0"} />
+        </td>
+      </tr>
+
+      <tr class="row">
+        <td class="label-cell">সর্বমোট কর</td>
+        <td class="input-cell">
+          <input type="text"  value=${numberToBanglaWords(cert.trade_total_tax) || "0"} readonly   />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
 
 <div>
-উল্লেখিত পেশা ও ব্যবসা বাণিজ্য পরিচালনার নিমিত্ত  আর্থিক বছর ${convertToBanglaNumber(fiscal_start)}-${convertToBanglaNumber(fiscal_end)} সনের লাইসেন্স প্রদান করা হলো। অত্র লাইসেন্স ${convertToBanglaNumber(endYear)} সালের ৩০শে জুন পর্যন্ত কার্যকর থাকবে।
+উল্লেখিত পেশা ও ব্যবসা বাণিজ্য পরিচালনার নিমিত্ত  আর্থিক বছর ${convertToBanglaNumber(
+      fiscal_start
+    )}-${convertToBanglaNumber(
+      fiscal_end
+    )} সালের জন্য লাইসেন্স প্রদান করা হলো। অত্র লাইসেন্স ${convertToBanglaNumber(
+      endYear
+    )} সালের ৩০শে জুন পর্যন্ত কার্যকর থাকবে।
 
 </div>
  
@@ -936,8 +1007,6 @@ export default function CertificatesPage() {
       }, 500);
     };
   };
-
-
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -1055,7 +1124,7 @@ export default function CertificatesPage() {
             />
           </div>
 
-           <div>
+          <div>
             <label className="font-semibold text-indigo-700">ওয়ার্ড</label>
             <input
               type="text"
@@ -1238,7 +1307,9 @@ export default function CertificatesPage() {
               </div>
 
               <div>
-                <label className="font-semibold text-indigo-700">অর্থবছর (শুরু)</label>
+                <label className="font-semibold text-indigo-700">
+                  অর্থবছর (শুরু)
+                </label>
                 <select
                   value={form.fiscalYear}
                   onChange={(e) =>
@@ -1256,7 +1327,9 @@ export default function CertificatesPage() {
               </div>
 
               <div>
-                <label className="font-semibold text-indigo-700">অর্থবছর (শেষ)</label>
+                <label className="font-semibold text-indigo-700">
+                  অর্থবছর (শেষ)
+                </label>
                 <select
                   value={form.fiscalYearEnd}
                   onChange={(e) =>
@@ -1267,7 +1340,7 @@ export default function CertificatesPage() {
                   <option value="Y2024_2025">২০২৪-২৫</option>
                   <option value="Y2025_2026">২০২৫-২৬</option>
                   <option value="Y2026_2027">২০২৬-২৭</option>
-                   <option value="Y2027_2028">২০২৭-২৮</option>
+                  <option value="Y2027_2028">২০২৭-২৮</option>
                   <option value="Y2028_2029">২০২৮-২৯</option>
                   <option value="Y2029_2030">২০২৯-৩০</option>
                 </select>
@@ -1292,8 +1365,6 @@ export default function CertificatesPage() {
               />
             </div>
           )}
-
-         
 
           <div>
             <label className="font-semibold text-indigo-700">
@@ -1437,8 +1508,6 @@ export default function CertificatesPage() {
                   >
                     🖨️Trade
                   </button>
-
-
                 </td>
               </tr>
             ))}
