@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dynamic from "next/dynamic";
+import { convertToBanglaNumber } from '@/utils_js/utils';
 
 const Editor = dynamic(
   () => import("@tinymce/tinymce-react").then((mod) => mod.Editor),
@@ -11,6 +12,8 @@ const Editor = dynamic(
 );
 
 export default function CertificatesPage() {
+  
+ 
   const [certificates, setCertificates] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [settings, setSettings] = useState(null);
@@ -574,6 +577,9 @@ export default function CertificatesPage() {
 
   const handlePrint_trade = async (cert) => {
     const origin = window.location.origin;
+    const [startYear, endYear] = cert.fiscalYearEnd.split('_');
+    const [fiscal_start, fiscal_end_bk] = cert.fiscalYear.split('_');
+    const [fiscal_start_bk, fiscal_end] = cert.fiscalYearEnd.split('_');
 
     const govtImg = `${origin}/images/govt.png`;
     const unionImg = `${origin}/images/union2.png`;
@@ -883,7 +889,7 @@ export default function CertificatesPage() {
 </table>
 
 <div>
-উল্লেখিত পেশা ও ব্যবসা বাণিজ্য পরিচালনার নিমিত্তে চলতি আর্থিক বছর ${cert.fiscalYear} সনের লাইসেন্স প্রদান করা হলো। অত্র লাইসেন্স ${cert.fiscalYearEnd} ইং সনের ৩০শে জুন পর্যন্ত কার্যকর থাকবে।
+উল্লেখিত পেশা ও ব্যবসা বাণিজ্য পরিচালনার নিমিত্ত  আর্থিক বছর ${convertToBanglaNumber(fiscal_start)}-${convertToBanglaNumber(fiscal_end)} সনের লাইসেন্স প্রদান করা হলো। অত্র লাইসেন্স ${convertToBanglaNumber(endYear)} সালের ৩০শে জুন পর্যন্ত কার্যকর থাকবে।
 
 </div>
  
