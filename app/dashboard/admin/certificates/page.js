@@ -3,8 +3,17 @@ import { useEffect, useState, useRef } from "react";
 //import { Editor } from '@tinymce/tinymce-react'
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { commonPrintStyles, taxTableStyles  } from "@/utils_js/helpers/printStyles";
+  
+
+import { preloadImage, openPrintWindow,generateSignatureHTML,generateApplicantInfoRows } from "@/utils_js/helpers/printHelpers";
+
 import dynamic from "next/dynamic";
-import { convertToBanglaNumber,numberToBanglaWords  } from "@/utils_js/utils";
+import {
+  convertToBanglaNumber,
+  numberToBanglaWords,
+  bnToEnNumber,
+} from "@/utils_js/utils";
 
 const Editor = dynamic(
   () => import("@tinymce/tinymce-react").then((mod) => mod.Editor),
@@ -28,7 +37,7 @@ export default function CertificatesPage() {
 
   const handleLoadDefaultNote = () => {
     const defaultNote = `
-    <p>তিনি উপরোক্ত ঠিকানার একজন স্থায়ী বাসিন্দা এবং ব্যক্তিগতভাবে আমার পরিচিত।আমার জানামতে তিনি জন্মসূত্রে বাংলাদেশী নাগরিক।তিনি রাষ্ট্র বা সমাজ বিরোধী কোনো কার্যকলাপের সঙ্গে জড়িত নন।
+    <p>তিনি উপরোক্ত ঠিকানার একজন স্থায়ী বাসিন্দা এবং ব্যক্তিগতভাবে আমার পরিচিত। আমার জানামতে তিনি জন্মসূত্রে বাংলাদেশী নাগরিক। তিনি রাষ্ট্র বা সমাজ বিরোধী কোনো কার্যকলাপের সঙ্গে জড়িত নন।
       আমি তাহার সর্বাঙ্গীন মঙ্গল ও উন্নতি কামনা করছি।</p>
      
   `;
@@ -268,6 +277,9 @@ export default function CertificatesPage() {
 
   const handlePrint = async (cert) => {
     const origin = window.location.origin;
+    const dob= formatDobDate(cert.birthDate?.substring(0, 10))  ;
+    const applicantInfoRows = generateApplicantInfoRows(cert, dob);
+
 
     const govtImg = `${origin}/images/govt.png`;
     const unionImg = `${origin}/images/union2.png`;
@@ -278,24 +290,21 @@ export default function CertificatesPage() {
     )}&size=100x100`;
     //const qrImg_with_link = `https://api.qrserver.com/v1/create-qr-code/?data=https://google.com&size=150x150`;
 
-    const preloadImage = (url) => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = url;
-        img.onload = () => resolve(url);
-        img.onerror = () => resolve(url);
-      });
-    };
+     // ✅ প্রিলোড ইমেজ
+  try {
+    await Promise.all([preloadImage(govtImg), preloadImage(unionImg)]);
+  } catch (err) {
+    console.error("Error preloading images:", err);
+  }
 
-    try {
-      await Promise.all([
-        preloadImage(govtImg),
-        preloadImage(unionImg),
-        preloadImage(qrImg),
-      ]);
-    } catch (error) {
-      console.error("Error preloading images:", error);
-    }
+  const signatureHTML = generateSignatureHTML(
+  signer,
+  signer2,
+  designationText,
+  designationText2,
+  settings,
+  qrImg_with_link
+);
 
     const printContents = `
     <!DOCTYPE html>
@@ -303,137 +312,8 @@ export default function CertificatesPage() {
     <head>
       <meta charset="UTF-8">
       <title>${cert.type || "Certificate"}</title>
-      <style>
-        @page {
-          size: A4;
-          margin: 0;
-        }
-
-        body {
-          font-family: 'SolaimanLipi', 'Kalpurush', 'Noto Serif Bengali', serif;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-          margin: 0;
-          padding: 0;
-          line-height: 1.3;
-          background: #f9f9f9;
-        }
-
-        .outer-border {
-          margin: 15px;
-          padding: 7px;
-          background: #000;
-        }
-
-        .middle-border {
-          padding: 12px;
-          background: #fff;
-        }
-
-        .inner-border {
-          padding: 15px;
-          border: 1px solid #000;
-          border-radius: 3px;
-          background: white;
-          position: relative;
-          box-sizing: border-box;
-          min-height: calc(100vh - 160px);
-          overflow: hidden;
-          z-index: 1;
-        }
-
-        .watermark {
-          background-image: url('${unionImg}');
-          background-repeat: no-repeat;
-          background-position: center;
-          background-size: 60%;
-          opacity: 0.08;
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-        }
-
-        .header-section {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 10px;
-          padding: 0 20px;
-          position: relative;
-          z-index: 1;
-          line-height:0.9;
-          font-size:12px;
-        }
-
-        .header-logo {
-          width: 80px;
-          height: auto;
-        }
-
-        .header-title {
-          font-size: 13px;
-          font-weight: bold;
-          text-align: center;
-          flex: 1;
-        }
-
-        hr {
-          border: 1px solid #000;
-          margin-top: 7px;
-          margin-bottom: 5px;
-        }
-
-        .top-section {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          z-index: 1;
-        
-        }
-
-        .top-section p {
-          margin: 0;
-            margin-top:5px;
-        }
-
-        h2 {
-          text-align: center;
-          
-          margin: 10px 0;
-        }
-
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 10px 0;
-        }
-
-        table tr td {
-          padding: 5px 0;
-        }
-
-        p {
-          z-index: 1;
-        }
-
-        .signature-area {
-          margin-top: 80px;
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 30px;
-          z-index: 1;
-        }
-
-        .signature-box {
-          text-align: center;
-          line-height: 1;
-        }
-
-        .qr-code {
-          width: 80px;
-          height: auto;
-        }
+       <style>
+        ${commonPrintStyles.replace("__UNION_IMG__", unionImg)}
       </style>
     </head>
     <body>
@@ -470,37 +350,7 @@ export default function CertificatesPage() {
     <td style="width: 30%;">নাম</td>
     <td style="margin-left:20px;">: ${cert.applicantName}</td>
   </tr>
-  <tr>
-    <td>পিতার নাম</td>
-    <td>: ${cert.fatherName || "-"}</td>
-  </tr>
-  <tr>
-    <td>মাতার নাম</td>
-    <td>: ${cert.motherName || "-"}</td>
-  </tr>
-
-  <tr>
-    <td>স্বামী/ স্ত্রীর নাম</td>
-    <td>: ${cert.spouse || ""}</td>
-  </tr>
-  <tr>
-    <td>জন্ম তারিখ</td>
-     
-    <td>: ${formatDobDate(cert.birthDate?.substring(0, 10)) || "-"}</td>
-  </tr>
-  <tr>
-    <td>গ্রাম</td>
-    <td>: ${cert.address || "-"}</td>
-  </tr>
-  <tr>
-    <td>জাতীয় পরিচয়পত্র নম্বর</td>
-    <td>: ${cert.nid || ""}</td>
-  </tr>
-
-  <tr>
-    <td>জন্ম নিবন্ধন নম্বর</td>
-    <td>: ${cert.birth_no || ""}</td>
-  </tr>
+   ${applicantInfoRows}
   <tr>
     <td>ওয়ার্ড</td>
     <td>: ${cert.ward || "-"}</td>
@@ -529,27 +379,7 @@ export default function CertificatesPage() {
 
           
 
-            <div class="signature-area">
-              <div class="signature-box">
-                <p style="margin: 0; width: 200px; padding-top: 5px;">${
-                  signer2.name
-                }</p>
-                <p>${designationText2}</p>
-                <p>${settings?.union_name}</p>
-                <p>${settings?.upazila}, ${settings?.district}</p>
-              </div>
-
-              <img src="${qrImg_with_link}" class="qr-code" alt="QR Code" />
-
-              <div class="signature-box">
-                <p style="margin: 0; width: 200px; padding-top: 5px;">${
-                  signer.name
-                }</p>
-                <p>${designationText}</p>
-                <p>${settings?.union_name}</p>
-                <p>${settings?.upazila}, ${settings?.district}</p>
-              </div>
-            </div>
+             ${signatureHTML}
           </div>
         </div>
       </div>
@@ -557,20 +387,14 @@ export default function CertificatesPage() {
     </html>
   `;
 
-    const newWin = window.open("", "_blank", "width=800,height=1000");
-    newWin.document.write(printContents);
-    newWin.document.close();
-
-    newWin.onload = () => {
-      setTimeout(() => {
-        newWin.print();
-        // newWin.close(); // চাইলে প্রিন্ট শেষে বন্ধ করতে এই লাইন আনকমেন্ট করো
-      }, 500);
-    };
+     openPrintWindow(printContents);
   };
 
   const handlePrint_trade = async (cert) => {
     const origin = window.location.origin;
+    const dob= formatDobDate(cert.birthDate?.substring(0, 10))  ;
+    const applicantInfoRows = generateApplicantInfoRows(cert, dob);
+
     const [startYear, endYear] = cert.fiscalYearEnd.split("_");
     const [fiscal_start, fiscal_end_bk] = cert.fiscalYear.split("_");
     const [fiscal_start_bk, fiscal_end] = cert.fiscalYearEnd.split("_");
@@ -584,24 +408,21 @@ export default function CertificatesPage() {
     )}&size=100x100`;
     //const qrImg_with_link = `https://api.qrserver.com/v1/create-qr-code/?data=https://google.com&size=150x150`;
 
-    const preloadImage = (url) => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = url;
-        img.onload = () => resolve(url);
-        img.onerror = () => resolve(url);
-      });
-    };
+    // ✅ প্রিলোড ইমেজ
+  try {
+    await Promise.all([preloadImage(govtImg), preloadImage(unionImg)]);
+  } catch (err) {
+    console.error("Error preloading images:", err);
+  }
 
-    try {
-      await Promise.all([
-        preloadImage(govtImg),
-        preloadImage(unionImg),
-        preloadImage(qrImg),
-      ]);
-    } catch (error) {
-      console.error("Error preloading images:", error);
-    }
+  const signatureHTML = generateSignatureHTML(
+  signer,
+  signer2,
+  designationText,
+  designationText2,
+  settings,
+  qrImg_with_link
+);
 
     const printContents = `
     <!DOCTYPE html>
@@ -609,200 +430,9 @@ export default function CertificatesPage() {
     <head>
       <meta charset="UTF-8">
       <title>${cert.type || "Certificate"}</title>
-      <style>
-        @page {
-          size: A4;
-          margin: 0;
-        }
-
-        body {
-          font-family: 'SolaimanLipi', 'Kalpurush', 'Noto Serif Bengali', serif;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-          margin: 0;
-          padding: 0;
-          line-height: 1.1;
-          background: #f9f9f9;
-        }
-
-        .outer-border {
-          margin: 15px;
-          padding: 7px;
-          background: #000;
-        }
-
-        .middle-border {
-          padding: 12px;
-          background: #fff;
-        }
-
-        .inner-border {
-          padding: 15px;
-          border: 1px solid #000;
-          border-radius: 3px;
-          background: white;
-          position: relative;
-          box-sizing: border-box;
-          min-height: calc(100vh - 160px);
-          overflow: hidden;
-          z-index: 1;
-        }
-
-        .watermark {
-          background-image: url('${unionImg}');
-          background-repeat: no-repeat;
-          background-position: center;
-          background-size: 60%;
-          opacity: 0.08;
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-        }
-
-        .header-section {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 10px;
-          padding: 0 20px;
-          position: relative;
-          z-index: 1;
-          line-height:0.9;
-          font-size:12px;
-        }
-
-        .header-logo {
-          width: 80px;
-          height: auto;
-        }
-
-        .header-title {
-          font-size: 13px;
-          font-weight: bold;
-          text-align: center;
-          flex: 1;
-        }
-
-        hr {
-          border: 1px solid #000;
-          margin-top: 7px;
-          margin-bottom: 5px;
-        }
-
-        .top-section {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          z-index: 1;
-        
-        }
-
-        .top-section p {
-          margin: 0;
-            margin-top:5px;
-        }
-
-        h2 {
-          text-align: center;
-          
-          margin: 10px 0;
-        }
-
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 10px 0;
-        }
-
-        table tr td {
-          padding: 5px 0;
-        }
-
-        p {
-          z-index: 1;
-        }
-
-        .signature-area {
-          margin-top: 80px;
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 30px;
-          z-index: 1;
-        }
-
-        .signature-box {
-          text-align: center;
-          line-height: 1;
-        }
-
-        .qr-code {
-          width: 80px;
-          height: auto;
-        }
-
-        .container2 {
-  margin-top: 1rem; /* mt-6 */
-  display: flex;
-  justify-content: center;
-}
-
-.tax-table {
-  width: 100%;
-  max-width: 30rem; /* max-w-xl (640px) */
-  border: 1px solid #86efac; /* green-300 */
-  border-radius: 0.4rem; /* rounded-xl */
-  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1); /* shadow-md */
-  border-collapse: collapse;
-}
-
-.tax-table tbody tr.header-row {
-  border-bottom: 1px solid #bbf7d0; /* border-b */
-  background-color: #dcfce7; /* green-100 */
-}
-
-.tax-table tbody tr.header-row td.header-cell {
-  padding: 0.3rem; /* p-3 */
-  font-weight: 700; /* font-bold */
-  color: #166534; /* text-green-800 */
-  text-align: center;
-   
-}
-
-.tax-table tbody tr.row {
-  border-bottom: 1px solid #bbf7d0; /* border-b */
-}
-
-.tax-table tbody tr.row:last-child {
-  border-bottom: none;
-}
-
-.label-cell {
-  padding: 0.3rem; /* p-3 */
-  font-weight: 600; /* font-semibold */
-  white-space: nowrap;
-}
-
-.input-cell {
-  padding: 0.3rem; /* p-3 */
-}
-
-.input-cell input[type="text"] {
-  width: 100%; /* w-full */
-  padding: 0.3rem 0.3rem; /* p-2 */
-  border: 1px solid #4ade80; /* border-green-400 */
-  border-radius: 0.375rem; /* rounded-md */
-  background-color: #dcfce7; /* bg-green-50 */
-  box-sizing: border-box;
-  text-align:center;
-}
-
-.input-cell input[readonly] {
-  border-color: #22c55e; /* border-green-500 */
-  background-color: #bbf7d0; /* bg-green-100 */
-  font-weight: 700; /* font-bold */
-}
-
+        <style>
+        ${commonPrintStyles.replace("__UNION_IMG__", unionImg)}
+        ${taxTableStyles}
       </style>
     </head>
     <body>
@@ -857,37 +487,7 @@ export default function CertificatesPage() {
     <td style="width: 30%;">লাইসেন্সধারীর নাম</td>
     <td style="margin-left:20px;">: ${cert.applicantName}</td>
   </tr>
-  <tr>
-    <td>পিতার নাম</td>
-    <td>: ${cert.fatherName || "-"}</td>
-  </tr>
-  <tr>
-    <td>মাতার নাম</td>
-    <td>: ${cert.motherName || "-"}</td>
-  </tr>
-
-  <tr>
-    <td>স্বামী/ স্ত্রীর নাম</td>
-    <td>: ${cert.spouse || ""}</td>
-  </tr>
-  <tr>
-    <td>জন্ম তারিখ</td>
-     
-    <td>: ${formatDobDate(cert.birthDate?.substring(0, 10)) || "-"}</td>
-  </tr>
-  <tr>
-    <td>গ্রাম</td>
-    <td>: ${cert.address || "-"}</td>
-  </tr>
-  <tr>
-    <td>জাতীয় পরিচয়পত্র নম্বর</td>
-    <td>: ${cert.nid || ""}</td>
-  </tr>
-
-  <tr>
-    <td>জন্ম নিবন্ধন নম্বর</td>
-    <td>: ${cert.birth_no || ""}</td>
-  </tr>
+  ${applicantInfoRows}
    
 
   <hr>
@@ -916,35 +516,37 @@ export default function CertificatesPage() {
       <tr class="row">
         <td class="label-cell">ট্রেড লাইসেন্স ফি</td>
         <td class="input-cell">
-          <input type="text"  value=${cert.trade_fee || "0"} />
+          <input type="text"  value=${cert.trade_fee || "০"} />
         </td>
       </tr>
 
       <tr class="row">
         <td class="label-cell">মুলধন কর</td>
         <td class="input-cell">
-          <input type="text" value=${cert.trade_capital_tax || "0"} />
+          <input type="text" value=${cert.trade_capital_tax || "০"} />
         </td>
       </tr>
 
       <tr class="row">
         <td class="label-cell">বকেয়া</td>
         <td class="input-cell">
-          <input type="text"  value=${cert.trade_due || "0"} />
+          <input type="text"  value=${cert.trade_due || "০"} />
         </td>
       </tr>
 
       <tr class="row">
-        <td class="label-cell">ভ্যাট</td>
+        <td class="label-cell">ভ্যাট (%)</td>
         <td class="input-cell">
-          <input type="text"   value=${cert.trade_vat || "0"} />
+          <input type="text"   value=${cert.trade_vat || "০"}  />
         </td>
       </tr>
 
       <tr class="row">
         <td class="label-cell">সর্বমোট কর</td>
         <td class="input-cell">
-          <input type="text"  value=${numberToBanglaWords(cert.trade_total_tax) || "0"} readonly   />
+         <span>${cert.trade_total_tax} ( ${numberToBanglaWords(
+      bnToEnNumber(cert.trade_total_tax)
+    )} টাকা মাত্র)</span>
         </td>
       </tr>
     </tbody>
@@ -953,8 +555,8 @@ export default function CertificatesPage() {
 
 
 
-<div>
-উল্লেখিত পেশা ও ব্যবসা বাণিজ্য পরিচালনার নিমিত্ত  আর্থিক বছর ${convertToBanglaNumber(
+<div style="margin-top:5px;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; উল্লেখিত পেশা ও ব্যবসা বাণিজ্য পরিচালনার নিমিত্ত  আর্থিক বছর ${convertToBanglaNumber(
       fiscal_start
     )}-${convertToBanglaNumber(
       fiscal_end
@@ -968,27 +570,154 @@ export default function CertificatesPage() {
 
           
 
-            <div class="signature-area">
-              <div class="signature-box">
-                <p style="margin: 0; width: 200px; padding-top: 5px;">${
-                  signer2.name
-                }</p>
-                <p>${designationText2}</p>
-                <p>${settings?.union_name}</p>
-                <p>${settings?.upazila}, ${settings?.district}</p>
-              </div>
+              ${signatureHTML}
 
-              <img src="${qrImg_with_link}" class="qr-code" alt="QR Code" />
+          </div>
+        </div>
+      </div>
 
-              <div class="signature-box">
-                <p style="margin: 0; width: 200px; padding-top: 5px;">${
-                  signer.name
-                }</p>
-                <p>${designationText}</p>
-                <p>${settings?.union_name}</p>
-                <p>${settings?.upazila}, ${settings?.district}</p>
-              </div>
+      <br>
+      <br>
+      <br>
+
+      <div class="outer-border">
+        <div class="middle-border">
+          <div class="inner-border">
+            <div class="watermark"></div>
+
+            <div class="header-section">
+              <img src="${govtImg}" class="header-logo" alt="Government Logo" />
+              <h3 class="header-title">${settings?.notes || ""}</h3>
+              <img src="${unionImg}" class="header-logo" alt="Union Logo" />
             </div>
+
+            
+
+            <div class="top-section">
+              <p>স্মারক নং: ${settings?.sarok_no}${settings?.letter_count}</p>
+              <p>তারিখ: ${formatDate(cert.issuedDate || new Date())}</p>
+            </div>
+
+            <div style="border: 1px solid green;margin:auto; background-color: #e6f4ea; padding: 5px; margin-top: 15px; border-radius: 7px; width: 200px; text-align: center;">
+  <h1 style="font-size: 15px; color: green; margin: auto;">
+    ${cert.type || "সার্টিফিকেট"} (অফিস কপি)
+  </h1>
+</div>
+
+
+
+            
+
+            <table>
+            <tr>
+    <td style="width: 30%;">প্রতিষ্ঠানের নাম</td>
+    <td style="margin-left:20px;">: ${cert.trade_name}</td>
+  </tr>
+
+
+   <tr>
+    <td style="width: 30%;">পেশা ও ব্যবসার ধরণ</td>
+    <td style="margin-left:20px;">: ${cert.trade_type}</td>
+  </tr>
+
+
+  <tr>
+    <td style="width: 30%;">প্রতিষ্ঠানের ঠিকানা</td>
+    <td style="margin-left:20px;">: ${cert.trade_address}</td>
+  </tr>
+
+
+  <tr>
+    <td style="width: 30%;">লাইসেন্সধারীর নাম</td>
+    <td style="margin-left:20px;">: ${cert.applicantName}</td>
+  </tr>
+  <tr>
+    <td>পিতার নাম</td>
+    <td>: ${cert.fatherName || "-"}</td>
+  </tr>
+  <tr>
+    <td>মাতার নাম</td>
+    <td>: ${cert.motherName || "-"}</td>
+  </tr>
+
+   <tr>
+    <td>জাতীয় পরিচয়পত্র নম্বর:</td>
+    <td>: ${cert.nid || "-"}</td>
+  </tr>
+
+    
+
+
+   
+</table>
+<div class="container2">
+  <table class="tax-table">
+    <tbody>
+      <tr class="header-row">
+        <td colspan="2" class="header-cell">
+          ট্যাক্স বিবরণী
+        </td>
+      </tr>
+
+      <tr class="row">
+        <td class="label-cell">ট্রেড লাইসেন্স ফি</td>
+        <td class="input-cell">
+          <input type="text"  value=${cert.trade_fee || "০"} />
+        </td>
+      </tr>
+
+      <tr class="row">
+        <td class="label-cell">মুলধন কর</td>
+        <td class="input-cell">
+          <input type="text" value=${cert.trade_capital_tax || "০"} />
+        </td>
+      </tr>
+
+      <tr class="row">
+        <td class="label-cell">বকেয়া</td>
+        <td class="input-cell">
+          <input type="text"  value=${cert.trade_due || "০"} />
+        </td>
+      </tr>
+
+      <tr class="row">
+        <td class="label-cell">ভ্যাট (%)</td>
+        <td class="input-cell">
+          <input type="text"   value=${cert.trade_vat || "০"}  />
+        </td>
+      </tr>
+
+      <tr class="row">
+        <td class="label-cell">সর্বমোট কর</td>
+        <td class="input-cell">
+         <span>${cert.trade_total_tax} ( ${numberToBanglaWords(
+      bnToEnNumber(cert.trade_total_tax)
+    )} টাকা মাত্র)</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+
+ 
+ 
+
+
+          
+
+            <div class="signature-area">
+            
+
+              
+
+              <div class="signature-box" >
+                <p style="margin-left:400px; margin-top:50px; width: 200px; padding-top: 5px;">   আদায়কারীর স্বাক্ষর </p>
+               
+                
+              </div>
+            
           </div>
         </div>
       </div>
@@ -996,16 +725,8 @@ export default function CertificatesPage() {
     </html>
   `;
 
-    const newWin = window.open("", "_blank", "width=800,height=1000");
-    newWin.document.write(printContents);
-    newWin.document.close();
+       openPrintWindow(printContents);
 
-    newWin.onload = () => {
-      setTimeout(() => {
-        newWin.print();
-        // newWin.close(); // চাইলে প্রিন্ট শেষে বন্ধ করতে এই লাইন আনকমেন্ট করো
-      }, 500);
-    };
   };
 
   return (
@@ -1495,19 +1216,22 @@ export default function CertificatesPage() {
                   >
                     🗑
                   </button>
+                   {cert.type != "ট্রেড লাইসেন্স" && (
                   <button
                     onClick={() => handlePrint(cert)}
                     className="text-green-600"
                   >
                     🖨️
-                  </button>
+                  </button>)}
 
-                  <button
-                    onClick={() => handlePrint_trade(cert)}
-                    className="text-green-600"
-                  >
-                    🖨️Trade
-                  </button>
+                  {cert.type === "ট্রেড লাইসেন্স" && (
+  <button
+    onClick={() => handlePrint_trade(cert)}
+    className="text-green-600"
+  >
+    🖨️ Trade
+  </button>
+)}
                 </td>
               </tr>
             ))}

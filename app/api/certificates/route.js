@@ -34,25 +34,39 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    const body = await req.json()
+    const body = await req.json();
+
+    // ✅ Required field check
+    const requiredFields = ["applicantName", "fatherName", "motherName",   "birthDate"];
+    for (const field of requiredFields) {
+      if (!body[field] || body[field].toString().trim() === "") {
+        return Response.json(
+          { success: false, error: `${field} is required` },
+          { status: 400 } // 400 = Bad Request
+        );
+      }
+    }
 
     // id থাকলে মুছে ফেলো
-    if ('id' in body) delete body.id
+    if ("id" in body) delete body.id;
 
-    if (body.birthDate) body.birthDate = new Date(body.birthDate)
-    if (body.issuedDate) body.issuedDate = new Date(body.issuedDate)
+    // তারিখ কনভার্ট করা
+    body.birthDate = new Date(body.birthDate);
+    if (body.issuedDate) body.issuedDate = new Date(body.issuedDate);
 
+    // ✅ সেভ করা
     const certificate = await prisma.certificate.create({
       data: {
         ...body,
       },
-    })
+    });
 
-    return Response.json({ success: true, certificate }, { status: 201 })
+    return Response.json({ success: true, certificate }, { status: 201 });
   } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 })
+    return Response.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+
 
 export async function PATCH(req) {
   try {
